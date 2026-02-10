@@ -63,6 +63,57 @@ export interface AuthTokens {
   refreshToken: string;
 }
 
+// Supplier Types
+export enum SupplierVerificationStatus {
+  PENDING = 'pending',
+  UNDER_REVIEW = 'under_review',
+  APPROVED = 'approved',
+  REJECTED = 'rejected',
+}
+
+export interface Supplier {
+  id: string;
+  user_id: string;
+  business_name: string;
+  business_type?: string;
+  gstin?: string;
+  pan?: string;
+  business_address?: string;
+  city?: string;
+  state?: string;
+  pincode?: string;
+  verification_status: SupplierVerificationStatus;
+  verification_documents?: any; // JSONB
+  rejection_reason?: string;
+  verified_at?: Date;
+  verified_by?: string;
+  created_at: Date;
+  updated_at: Date;
+}
+
+export interface SupplierCreateInput {
+  user_id: string;
+  business_name: string;
+  business_type?: string;
+  gstin?: string;
+  pan?: string;
+  business_address?: string;
+  city?: string;
+  state?: string;
+  pincode?: string;
+}
+
+export interface SupplierUpdateInput {
+  business_name?: string;
+  business_type?: string;
+  gstin?: string;
+  pan?: string;
+  business_address?: string;
+  city?: string;
+  state?: string;
+  pincode?: string;
+}
+
 // Express Request with User
 declare global {
   namespace Express {

@@ -106,3 +106,46 @@ export interface Order {
   total_amount: number;
   created_at: string;
 }
+
+// Supplier Types
+export enum SupplierVerificationStatus {
+  PENDING = 'pending',
+  UNDER_REVIEW = 'under_review',
+  APPROVED = 'approved',
+  REJECTED = 'rejected',
+}
+
+export interface Supplier {
+  id: string;
+  user_id: string;
+  business_name: string;
+  business_type?: string;
+  gstin?: string;
+  pan?: string;
+  business_address?: string;
+  city?: string;
+  state?: string;
+  pincode?: string;
+  verification_status: SupplierVerificationStatus;
+  verification_documents?: any;
+  rejection_reason?: string;
+  verified_at?: string;
+  created_at: string;
+  updated_at: string;
+  // From join with users table
+  email?: string;
+  first_name?: string;
+  last_name?: string;
+  phone?: string;
+}
+
+export interface SupplierProfileData {
+  business_name: string;
+  business_type?: string;
+  gstin?: string;
+  pan?: string;
+  business_address?: string;
+  city?: string;
+  state?: string;
+  pincode?: string;
+}
