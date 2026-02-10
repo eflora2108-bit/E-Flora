@@ -7,6 +7,7 @@ import path from 'path';
 import env from './config/env';
 import { errorHandler, notFoundHandler } from './middleware/errorHandler';
 import logger from './utils/logger';
+import authRoutes from './routes/authRoutes';
 
 // Create Express app
 const app: Application = express();
@@ -62,8 +63,8 @@ app.get('/health', (req, res) => {
   });
 });
 
-// API routes will be added here
-// app.use(`/api/${env.API_VERSION}/auth`, authRoutes);
+// API routes
+app.use(`/api/${env.API_VERSION}/auth`, authRoutes);
 // app.use(`/api/${env.API_VERSION}/products`, productRoutes);
 // etc.
 
