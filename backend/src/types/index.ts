@@ -218,6 +218,41 @@ declare global {
   }
 }
 
+// Inventory Types
+export enum InventoryChangeType {
+  PURCHASE = 'purchase',
+  SALE = 'sale',
+  RETURN = 'return',
+  ADJUSTMENT = 'adjustment',
+  DAMAGED = 'damaged',
+}
+
+export interface InventoryLog {
+  id: string;
+  product_id: string;
+  change_type: InventoryChangeType;
+  quantity_change: number;
+  previous_stock: number;
+  new_stock: number;
+  reference_type?: string;
+  reference_id?: string;
+  notes?: string;
+  created_by?: string;
+  created_at: Date;
+}
+
+export interface InventoryLogCreateInput {
+  product_id: string;
+  change_type: InventoryChangeType;
+  quantity_change: number;
+  previous_stock: number;
+  new_stock: number;
+  reference_type?: string;
+  reference_id?: string;
+  notes?: string;
+  created_by?: string;
+}
+
 // API Response Types
 export interface ApiResponse<T = any> {
   success: boolean;

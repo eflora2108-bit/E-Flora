@@ -137,6 +137,40 @@ export interface ProductFormData {
   care_instructions?: string;
 }
 
+// Inventory Types
+export enum InventoryChangeType {
+  PURCHASE = 'purchase',
+  SALE = 'sale',
+  RETURN = 'return',
+  ADJUSTMENT = 'adjustment',
+  DAMAGED = 'damaged',
+}
+
+export interface InventoryLog {
+  id: string;
+  product_id: string;
+  change_type: InventoryChangeType;
+  quantity_change: number;
+  previous_stock: number;
+  new_stock: number;
+  reference_type?: string;
+  reference_id?: string;
+  notes?: string;
+  created_by?: string;
+  created_at: string;
+  // From joins
+  product_name?: string;
+  sku?: string;
+}
+
+export interface InventoryStats {
+  total_products: number;
+  total_stock: number;
+  low_stock_count: number;
+  out_of_stock_count: number;
+  avg_stock: number;
+}
+
 // Cart Types
 export interface CartItem {
   id: string;

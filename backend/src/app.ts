@@ -12,6 +12,7 @@ import supplierRoutes from './routes/supplierRoutes';
 import adminRoutes from './routes/adminRoutes';
 import categoryRoutes from './routes/categoryRoutes';
 import productRoutes from './routes/productRoutes';
+import inventoryRoutes from './routes/inventoryRoutes';
 
 // Create Express app
 const app: Application = express();
@@ -73,6 +74,7 @@ app.use(`/api/${env.API_VERSION}/suppliers`, supplierRoutes);
 app.use(`/api/${env.API_VERSION}/admin`, adminRoutes);
 app.use(`/api/${env.API_VERSION}/categories`, categoryRoutes);
 app.use(`/api/${env.API_VERSION}/products`, productRoutes);
+app.use(`/api/${env.API_VERSION}/inventory`, inventoryRoutes);
 
 // Root endpoint
 app.get('/', (req, res) => {
