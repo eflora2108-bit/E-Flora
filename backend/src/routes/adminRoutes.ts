@@ -3,6 +3,7 @@ import { AdminController } from '../controllers/adminController';
 import { CategoryController } from '../controllers/categoryController';
 import { ProductController } from '../controllers/productController';
 import { InvoiceController } from '../controllers/invoiceController';
+import { AnalyticsController } from '../controllers/analyticsController';
 import { authenticate } from '../middleware/auth';
 import { requireAdmin } from '../middleware/rbac';
 
@@ -37,5 +38,14 @@ router.post('/products/:id/reject', ProductController.reject);
 router.get('/invoices', InvoiceController.getAllInvoices);
 router.get('/invoices/:id', InvoiceController.getAnyInvoiceDetails);
 router.get('/invoices/:id/download', InvoiceController.downloadAnyInvoice);
+
+// Analytics & Reports
+router.get('/analytics/dashboard', AnalyticsController.getDashboard);
+router.get('/analytics/revenue-trend', AnalyticsController.getRevenueTrend);
+router.get('/analytics/sales-report', AnalyticsController.getSalesReport);
+router.get('/analytics/sales-by-category', AnalyticsController.getSalesByCategory);
+router.get('/analytics/sales-by-supplier', AnalyticsController.getSalesBySupplier);
+router.get('/analytics/inventory-report', AnalyticsController.getInventoryReport);
+router.post('/analytics/export', AnalyticsController.exportReport);
 
 export default router;
