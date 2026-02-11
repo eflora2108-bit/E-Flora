@@ -76,18 +76,65 @@ export interface RegisterFormData {
   agreeToTerms: boolean;
 }
 
-// Product Types (for future use)
-export interface Product {
+// Category Types
+export interface Category {
   id: string;
   name: string;
   slug: string;
+  description?: string;
+  parent_id?: string;
+  is_active: boolean;
+  created_at: string;
+  updated_at: string;
+  children?: Category[];
+}
+
+// Product Types
+export enum ProductModerationStatus {
+  PENDING = 'pending',
+  APPROVED = 'approved',
+  REJECTED = 'rejected',
+}
+
+export interface Product {
+  id: string;
+  supplier_id: string;
+  category_id: string;
+  name: string;
+  slug: string;
+  sku: string;
+  description?: string;
   price: number;
   mrp?: number;
-  images: string[];
-  short_description?: string;
+  gst_percentage: number;
   stock_quantity: number;
+  min_order_quantity: number;
+  images?: string[];
+  specifications?: any;
+  care_instructions?: string;
+  moderation_status: ProductModerationStatus;
+  is_active: boolean;
+  rejection_reason?: string;
+  moderated_by?: string;
+  moderated_at?: string;
+  created_at: string;
+  updated_at: string;
+  // From joins
+  supplier?: Supplier;
+  category?: Category;
+}
+
+export interface ProductFormData {
   category_id: string;
-  supplier_id: string;
+  name: string;
+  description?: string;
+  price: number;
+  mrp?: number;
+  gst_percentage: number;
+  stock_quantity: number;
+  min_order_quantity: number;
+  specifications?: any;
+  care_instructions?: string;
 }
 
 // Cart Types
