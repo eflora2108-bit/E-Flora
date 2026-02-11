@@ -114,6 +114,101 @@ export interface SupplierUpdateInput {
   pincode?: string;
 }
 
+// Category Types
+export interface Category {
+  id: string;
+  name: string;
+  slug: string;
+  description?: string;
+  parent_id?: string;
+  image_url?: string;
+  is_active: boolean;
+  display_order: number;
+  created_at: Date;
+  updated_at: Date;
+}
+
+export interface CategoryCreateInput {
+  name: string;
+  slug: string;
+  description?: string;
+  parent_id?: string;
+  image_url?: string;
+  display_order?: number;
+}
+
+// Product Types
+export enum ProductModerationStatus {
+  PENDING = 'pending',
+  APPROVED = 'approved',
+  REJECTED = 'rejected',
+}
+
+export interface Product {
+  id: string;
+  supplier_id: string;
+  category_id: string;
+  name: string;
+  slug: string;
+  description?: string;
+  short_description?: string;
+  botanical_name?: string;
+  sku: string;
+  price: number;
+  mrp?: number;
+  gst_percentage: number;
+  hsn_code?: string;
+  unit: string;
+  minimum_order_quantity: number;
+  stock_quantity: number;
+  low_stock_threshold: number;
+  images?: any; // JSONB
+  specifications?: any; // JSONB
+  moderation_status: ProductModerationStatus;
+  rejection_reason?: string;
+  is_active: boolean;
+  is_featured: boolean;
+  moderated_by?: string;
+  moderated_at?: Date;
+  created_at: Date;
+  updated_at: Date;
+}
+
+export interface ProductCreateInput {
+  supplier_id: string;
+  category_id: string;
+  name: string;
+  description?: string;
+  short_description?: string;
+  botanical_name?: string;
+  price: number;
+  mrp?: number;
+  gst_percentage?: number;
+  hsn_code?: string;
+  unit?: string;
+  minimum_order_quantity?: number;
+  stock_quantity: number;
+  low_stock_threshold?: number;
+  specifications?: any;
+}
+
+export interface ProductUpdateInput {
+  category_id?: string;
+  name?: string;
+  description?: string;
+  short_description?: string;
+  botanical_name?: string;
+  price?: number;
+  mrp?: number;
+  gst_percentage?: number;
+  hsn_code?: string;
+  unit?: string;
+  minimum_order_quantity?: number;
+  stock_quantity?: number;
+  low_stock_threshold?: number;
+  specifications?: any;
+}
+
 // Express Request with User
 declare global {
   namespace Express {

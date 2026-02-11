@@ -1,5 +1,7 @@
 import { Router } from 'express';
 import { AdminController } from '../controllers/adminController';
+import { CategoryController } from '../controllers/categoryController';
+import { ProductController } from '../controllers/productController';
 import { authenticate } from '../middleware/auth';
 import { requireAdmin } from '../middleware/rbac';
 
@@ -17,5 +19,17 @@ router.get('/suppliers/stats', AdminController.getSupplierStats);
 router.get('/suppliers/:id', AdminController.getSupplierDetails);
 router.post('/suppliers/:id/approve', AdminController.approveSupplier);
 router.post('/suppliers/:id/reject', AdminController.rejectSupplier);
+
+// Category management
+router.post('/categories', CategoryController.create);
+router.get('/categories', CategoryController.getAll);
+router.put('/categories/:id', CategoryController.update);
+router.delete('/categories/:id', CategoryController.delete);
+
+// Product moderation
+router.get('/products/pending', ProductController.getPendingProducts);
+router.get('/products/stats', ProductController.getStats);
+router.post('/products/:id/approve', ProductController.approve);
+router.post('/products/:id/reject', ProductController.reject);
 
 export default router;
