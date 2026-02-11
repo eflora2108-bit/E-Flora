@@ -109,6 +109,7 @@ export interface Product {
   gst_percentage: number;
   stock_quantity: number;
   min_order_quantity: number;
+  low_stock_threshold?: number;
   images?: string[];
   specifications?: any;
   care_instructions?: string;

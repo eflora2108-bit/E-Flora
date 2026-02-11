@@ -7,7 +7,7 @@ import { useCart } from '../../contexts/CartContext';
 
 const Header: React.FC = () => {
   const { user, isAuthenticated, logout } = useAuth();
-  const { itemCount } = useCart();
+  const { cartCount } = useCart();
   const navigate = useNavigate();
 
   const handleLogout = async () => {
@@ -76,9 +76,9 @@ const Header: React.FC = () => {
                     aria-label="Cart"
                   >
                     <ShoppingCart className="w-6 h-6" />
-                    {itemCount > 0 && (
+                    {cartCount > 0 && (
                       <span className="absolute top-0 right-0 inline-flex items-center justify-center px-2 py-1 text-xs font-bold leading-none text-white transform translate-x-1/2 -translate-y-1/2 bg-red-600 rounded-full min-w-[20px]">
-                        {itemCount > 99 ? '99+' : itemCount}
+                        {cartCount > 99 ? '99+' : cartCount}
                       </span>
                     )}
                   </Link>

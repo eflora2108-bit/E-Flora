@@ -33,7 +33,7 @@ export const wishlistService = {
   },
 
   // Check if product is in wishlist
-  async isInWishlist(productId: string, wishlist: WishlistItem[]): boolean {
+  isInWishlist(productId: string, wishlist: WishlistItem[]): boolean {
     return wishlist.some((item) => item.product_id === productId);
   },
 };

@@ -151,7 +151,7 @@ export const InventoryDashboardPage = () => {
             <div style={{ background: 'white', padding: '1.5rem', borderRadius: '12px', border: '1px solid #e0e0e0' }}>
               <div style={{ fontSize: '0.9rem', color: '#666', marginBottom: '0.5rem' }}>Avg Stock/Product</div>
               <div style={{ fontSize: '2rem', fontWeight: '700', color: '#8b5cf6' }}>
-                {parseFloat(stats.avg_stock).toFixed(1)}
+                {Number(stats.avg_stock).toFixed(1)}
               </div>
             </div>
           </div>

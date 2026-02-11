@@ -10,6 +10,7 @@ import {
   AlertCircle,
   Info,
   X,
+  Bell,
 } from 'lucide-react';
 import { notificationService } from '../../services/notificationService';
 import { Notification, NotificationType } from '../../types';
