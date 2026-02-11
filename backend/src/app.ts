@@ -13,6 +13,9 @@ import adminRoutes from './routes/adminRoutes';
 import categoryRoutes from './routes/categoryRoutes';
 import productRoutes from './routes/productRoutes';
 import inventoryRoutes from './routes/inventoryRoutes';
+import cartRoutes from './routes/cartRoutes';
+import addressRoutes from './routes/addressRoutes';
+import checkoutRoutes from './routes/checkoutRoutes';
 
 // Create Express app
 const app: Application = express();
@@ -75,6 +78,9 @@ app.use(`/api/${env.API_VERSION}/admin`, adminRoutes);
 app.use(`/api/${env.API_VERSION}/categories`, categoryRoutes);
 app.use(`/api/${env.API_VERSION}/products`, productRoutes);
 app.use(`/api/${env.API_VERSION}/inventory`, inventoryRoutes);
+app.use(`/api/${env.API_VERSION}/cart`, cartRoutes);
+app.use(`/api/${env.API_VERSION}/addresses`, addressRoutes);
+app.use(`/api/${env.API_VERSION}/checkout`, checkoutRoutes);
 
 // Root endpoint
 app.get('/', (req, res) => {

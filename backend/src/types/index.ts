@@ -253,6 +253,68 @@ export interface InventoryLogCreateInput {
   created_by?: string;
 }
 
+// Cart Types
+export interface CartItem {
+  id: string;
+  user_id: string;
+  product_id: string;
+  quantity: number;
+  created_at: Date;
+  updated_at: Date;
+}
+
+export interface CartItemCreateInput {
+  user_id: string;
+  product_id: string;
+  quantity: number;
+}
+
+// Address Types
+export enum AddressType {
+  SHIPPING = 'shipping',
+  BILLING = 'billing',
+}
+
+export interface Address {
+  id: string;
+  user_id: string;
+  address_type: AddressType;
+  full_name: string;
+  phone: string;
+  address_line1: string;
+  address_line2?: string;
+  city: string;
+  state: string;
+  pincode: string;
+  is_default: boolean;
+  created_at: Date;
+  updated_at: Date;
+}
+
+export interface AddressCreateInput {
+  user_id: string;
+  address_type: AddressType;
+  full_name: string;
+  phone: string;
+  address_line1: string;
+  address_line2?: string;
+  city: string;
+  state: string;
+  pincode: string;
+  is_default?: boolean;
+}
+
+export interface AddressUpdateInput {
+  full_name?: string;
+  phone?: string;
+  address_line1?: string;
+  address_line2?: string;
+  city?: string;
+  state?: string;
+  pincode?: string;
+  is_default?: boolean;
+}
+
 // API Response Types
 export interface ApiResponse<T = any> {
   success: boolean;

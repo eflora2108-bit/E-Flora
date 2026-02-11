@@ -174,9 +174,76 @@ export interface InventoryStats {
 // Cart Types
 export interface CartItem {
   id: string;
+  user_id: string;
   product_id: string;
-  product: Product;
   quantity: number;
+  created_at: string;
+  updated_at: string;
+  // From joins
+  name?: string;
+  slug?: string;
+  sku?: string;
+  price?: number;
+  mrp?: number;
+  gst_percentage?: number;
+  stock_quantity?: number;
+  minimum_order_quantity?: number;
+  images?: string[];
+  supplier_id?: string;
+  supplier_name?: string;
+  category_name?: string;
+  is_active?: boolean;
+  // Calculated fields
+  item_total?: number;
+  gst_amount?: number;
+  total_with_gst?: number;
+}
+
+export interface CartSummary {
+  subtotal: number;
+  total_gst: number;
+  total: number;
+  total_items: number;
+  item_count: number;
+}
+
+export interface Cart {
+  items: CartItem[];
+  summary: CartSummary;
+}
+
+// Address Types
+export enum AddressType {
+  SHIPPING = 'shipping',
+  BILLING = 'billing',
+}
+
+export interface Address {
+  id: string;
+  user_id: string;
+  address_type: AddressType;
+  full_name: string;
+  phone: string;
+  address_line1: string;
+  address_line2?: string;
+  city: string;
+  state: string;
+  pincode: string;
+  is_default: boolean;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface AddressFormData {
+  address_type: AddressType;
+  full_name: string;
+  phone: string;
+  address_line1: string;
+  address_line2?: string;
+  city: string;
+  state: string;
+  pincode: string;
+  is_default?: boolean;
 }
 
 // Order Types
