@@ -315,6 +315,73 @@ export interface AddressUpdateInput {
   is_default?: boolean;
 }
 
+// Order Types
+export enum OrderStatus {
+  PENDING = 'pending',
+  CONFIRMED = 'confirmed',
+  PROCESSING = 'processing',
+  SHIPPED = 'shipped',
+  DELIVERED = 'delivered',
+  CANCELLED = 'cancelled',
+  RETURNED = 'returned',
+}
+
+export enum PaymentStatus {
+  PENDING = 'pending',
+  PROCESSING = 'processing',
+  COMPLETED = 'completed',
+  FAILED = 'failed',
+  REFUNDED = 'refunded',
+}
+
+export interface Order {
+  id: string;
+  order_number: string;
+  user_id: string;
+  status: OrderStatus;
+  payment_status: PaymentStatus;
+  payment_method?: string;
+  payment_id?: string;
+  razorpay_order_id?: string;
+  razorpay_payment_id?: string;
+  razorpay_signature?: string;
+  subtotal: number;
+  gst_amount: number;
+  shipping_charges: number;
+  total_amount: number;
+  shipping_address_id: string;
+  billing_address_id?: string;
+  notes?: string;
+  tracking_number?: string;
+  shipped_at?: Date;
+  delivered_at?: Date;
+  cancelled_at?: Date;
+  created_at: Date;
+  updated_at: Date;
+}
+
+export interface OrderItem {
+  id: string;
+  order_id: string;
+  product_id: string;
+  supplier_id: string;
+  product_name: string;
+  product_sku: string;
+  quantity: number;
+  unit_price: number;
+  gst_percentage: number;
+  gst_amount: number;
+  total_amount: number;
+  created_at: Date;
+}
+
+export interface OrderCreateInput {
+  user_id: string;
+  shipping_address_id: string;
+  billing_address_id?: string;
+  notes?: string;
+}
+
 // API Response Types
 export interface ApiResponse<T = any> {
   success: boolean;

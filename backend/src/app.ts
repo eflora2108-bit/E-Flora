@@ -16,6 +16,8 @@ import inventoryRoutes from './routes/inventoryRoutes';
 import cartRoutes from './routes/cartRoutes';
 import addressRoutes from './routes/addressRoutes';
 import checkoutRoutes from './routes/checkoutRoutes';
+import paymentRoutes from './routes/paymentRoutes';
+import orderRoutes from './routes/orderRoutes';
 
 // Create Express app
 const app: Application = express();
@@ -81,6 +83,8 @@ app.use(`/api/${env.API_VERSION}/inventory`, inventoryRoutes);
 app.use(`/api/${env.API_VERSION}/cart`, cartRoutes);
 app.use(`/api/${env.API_VERSION}/addresses`, addressRoutes);
 app.use(`/api/${env.API_VERSION}/checkout`, checkoutRoutes);
+app.use(`/api/${env.API_VERSION}/payments`, paymentRoutes);
+app.use(`/api/${env.API_VERSION}/orders`, orderRoutes);
 
 // Root endpoint
 app.get('/', (req, res) => {

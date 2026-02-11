@@ -4,7 +4,15 @@ import { useCart } from '../../contexts/CartContext';
 import { useAuth } from '../../contexts/AuthContext';
 import { addressService } from '../../services/addressService';
 import { checkoutService } from '../../services/checkoutService';
+import { paymentService } from '../../services/paymentService';
 import { Address, AddressType, AddressFormData } from '../../types';
+
+// Declare Razorpay global type
+declare global {
+  interface Window {
+    Razorpay: any;
+  }
+}
 
 export const CheckoutPage = () => {
   const navigate = useNavigate();
@@ -89,6 +97,70 @@ export const CheckoutPage = () => {
       const totals = await checkoutService.calculateTotals(selectedAddressId);
       setOrderTotals(totals);
       setStep(2);
+    } catch (err: any) {
+      setError(err.message);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handlePayment = async () => {
+    setLoading(true);
+    setError('');
+
+    try {
+      // Load Razorpay script
+      const scriptLoaded = await paymentService.loadRazorpayScript();
+      if (!scriptLoaded) {
+        throw new Error('Failed to load Razorpay SDK. Please check your internet connection.');
+      }
+
+      // Initiate payment (creates order)
+      const paymentData = await paymentService.initiatePayment(selectedAddressId);
+
+      // Configure Razorpay options
+      const options = {
+        key: 'rzp_test_YOUR_KEY_ID', // Replace with your Razorpay key in production
+        amount: paymentData.amount * 100, // Amount in paise
+        currency: paymentData.currency,
+        name: 'eFlora Marketplace',
+        description: `Order ${paymentData.order_number}`,
+        order_id: paymentData.razorpay_order_id,
+        handler: async function (response: any) {
+          try {
+            // Verify payment on backend
+            await paymentService.verifyPayment(
+              response.razorpay_order_id,
+              response.razorpay_payment_id,
+              response.razorpay_signature
+            );
+
+            // Clear cart and navigate to success page
+            await refreshCart();
+            navigate(`/orders/${paymentData.order_id}/success`);
+          } catch (err: any) {
+            setError(err.message);
+            alert('Payment verification failed. Please contact support.');
+          }
+        },
+        prefill: {
+          name: addresses.find((a) => a.id === selectedAddressId)?.full_name || '',
+          contact: addresses.find((a) => a.id === selectedAddressId)?.phone || '',
+        },
+        theme: {
+          color: '#667eea',
+        },
+        modal: {
+          ondismiss: function () {
+            setLoading(false);
+            setError('Payment cancelled');
+          },
+        },
+      };
+
+      // Open Razorpay checkout
+      const razorpay = new window.Razorpay(options);
+      razorpay.open();
     } catch (err: any) {
       setError(err.message);
     } finally {
@@ -417,19 +489,20 @@ export const CheckoutPage = () => {
                 Back
               </button>
               <button
-                onClick={() => alert('Payment integration coming in Phase 7!')}
+                onClick={handlePayment}
+                disabled={loading}
                 style={{
                   flex: 2,
                   padding: '1rem',
-                  background: '#667eea',
+                  background: loading ? '#ccc' : '#667eea',
                   color: 'white',
                   border: 'none',
                   borderRadius: '8px',
                   fontWeight: '700',
-                  cursor: 'pointer',
+                  cursor: loading ? 'not-allowed' : 'pointer',
                 }}
               >
-                Proceed to Payment
+                {loading ? 'Processing...' : 'Proceed to Payment'}
               </button>
             </div>
           </div>
