@@ -6,6 +6,7 @@ import { AddressModel } from '../models/Address';
 import { InventoryService } from './inventoryService';
 import { CartService } from './cartService';
 import { PaymentService } from './paymentService';
+import { InvoiceService } from './invoiceService';
 import { Order, OrderStatus, PaymentStatus } from '../types';
 import { AppError } from '../middleware/errorHandler';
 
@@ -111,7 +112,7 @@ export class OrderService {
     }
 
     // Process order confirmation within transaction
-    return transaction(async (client: PoolClient) => {
+    const confirmedOrder = await transaction(async (client: PoolClient) => {
       // Update order status
       const sql = `
         UPDATE orders
@@ -193,6 +194,16 @@ export class OrderService {
 
       return updatedOrder;
     });
+
+    // Generate invoice after successful order confirmation
+    try {
+      await InvoiceService.generateInvoiceFromOrder(confirmedOrder.id);
+    } catch (error) {
+      // Log error but don't fail the order confirmation
+      console.error('Failed to generate invoice:', error);
+    }
+
+    return confirmedOrder;
   }
 
   /**

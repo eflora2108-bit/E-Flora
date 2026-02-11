@@ -18,6 +18,7 @@ import addressRoutes from './routes/addressRoutes';
 import checkoutRoutes from './routes/checkoutRoutes';
 import paymentRoutes from './routes/paymentRoutes';
 import orderRoutes from './routes/orderRoutes';
+import invoiceRoutes from './routes/invoiceRoutes';
 
 // Create Express app
 const app: Application = express();
@@ -85,6 +86,7 @@ app.use(`/api/${env.API_VERSION}/addresses`, addressRoutes);
 app.use(`/api/${env.API_VERSION}/checkout`, checkoutRoutes);
 app.use(`/api/${env.API_VERSION}/payments`, paymentRoutes);
 app.use(`/api/${env.API_VERSION}/orders`, orderRoutes);
+app.use(`/api/${env.API_VERSION}/invoices`, invoiceRoutes);
 
 // Root endpoint
 app.get('/', (req, res) => {

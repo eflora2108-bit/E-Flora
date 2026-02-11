@@ -348,3 +348,32 @@ export interface SupplierProfileData {
   state?: string;
   pincode?: string;
 }
+
+// Invoice Types
+export enum InvoiceStatus {
+  DRAFT = 'draft',
+  GENERATED = 'generated',
+  SENT = 'sent',
+  PAID = 'paid',
+  CANCELLED = 'cancelled',
+}
+
+export interface Invoice {
+  id: string;
+  invoice_number: string;
+  order_id: string;
+  user_id: string;
+  subtotal: number;
+  cgst_amount: number;
+  sgst_amount: number;
+  igst_amount: number;
+  total_gst: number;
+  shipping_charges: number;
+  total_amount: number;
+  pdf_url?: string;
+  status: InvoiceStatus;
+  generated_at?: string;
+  sent_at?: string;
+  created_at: string;
+  updated_at: string;
+}

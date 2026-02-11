@@ -2,6 +2,7 @@ import { Router } from 'express';
 import { AdminController } from '../controllers/adminController';
 import { CategoryController } from '../controllers/categoryController';
 import { ProductController } from '../controllers/productController';
+import { InvoiceController } from '../controllers/invoiceController';
 import { authenticate } from '../middleware/auth';
 import { requireAdmin } from '../middleware/rbac';
 
@@ -31,5 +32,10 @@ router.get('/products/pending', ProductController.getPendingProducts);
 router.get('/products/stats', ProductController.getStats);
 router.post('/products/:id/approve', ProductController.approve);
 router.post('/products/:id/reject', ProductController.reject);
+
+// Invoice management
+router.get('/invoices', InvoiceController.getAllInvoices);
+router.get('/invoices/:id', InvoiceController.getAnyInvoiceDetails);
+router.get('/invoices/:id/download', InvoiceController.downloadAnyInvoice);
 
 export default router;

@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { useAuth } from '../../contexts/AuthContext';
 import { orderService } from '../../services/orderService';
+import { invoiceService } from '../../services/invoiceService';
 import { Order, OrderStatus, PaymentStatus } from '../../types';
 
 export const OrderDetailPage = () => {
@@ -305,6 +306,67 @@ export const OrderDetailPage = () => {
                 </span>
               </div>
             </div>
+
+            {/* Invoice */}
+            {order.payment_status === PaymentStatus.COMPLETED && (
+              <div style={{ background: 'white', borderRadius: '12px', padding: '1.5rem', marginBottom: '1.5rem' }}>
+                <h3 style={{ marginBottom: '1rem' }}>Invoice</h3>
+                <p style={{ fontSize: '0.9rem', color: '#666', marginBottom: '1rem' }}>
+                  Download your GST-compliant invoice for this order
+                </p>
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
+                  <button
+                    onClick={() => navigate(`/invoices/order/${order.id}`)}
+                    style={{
+                      width: '100%',
+                      padding: '0.875rem',
+                      background: '#667eea',
+                      color: 'white',
+                      border: 'none',
+                      borderRadius: '8px',
+                      fontWeight: '600',
+                      cursor: 'pointer',
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      gap: '0.5rem',
+                    }}
+                  >
+                    <span>📄</span>
+                    <span>View Invoice</span>
+                  </button>
+                  <button
+                    onClick={() => {
+                      // Get invoice and download
+                      invoiceService.getInvoiceByOrderId(order.id)
+                        .then((invoice) => {
+                          invoiceService.downloadInvoice(invoice.id);
+                        })
+                        .catch((err) => {
+                          alert(err.message || 'Failed to download invoice');
+                        });
+                    }}
+                    style={{
+                      width: '100%',
+                      padding: '0.875rem',
+                      background: 'transparent',
+                      color: '#667eea',
+                      border: '1px solid #667eea',
+                      borderRadius: '8px',
+                      fontWeight: '600',
+                      cursor: 'pointer',
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      gap: '0.5rem',
+                    }}
+                  >
+                    <span>📥</span>
+                    <span>Download PDF</span>
+                  </button>
+                </div>
+              </div>
+            )}
 
             {/* Actions */}
             {canCancel && (

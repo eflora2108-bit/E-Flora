@@ -382,6 +382,56 @@ export interface OrderCreateInput {
   notes?: string;
 }
 
+// Invoice Types
+export enum InvoiceStatus {
+  DRAFT = 'draft',
+  GENERATED = 'generated',
+  SENT = 'sent',
+  PAID = 'paid',
+  CANCELLED = 'cancelled',
+}
+
+export interface Invoice {
+  id: string;
+  invoice_number: string;
+  order_id: string;
+  user_id: string;
+  subtotal: number;
+  cgst_amount: number;
+  sgst_amount: number;
+  igst_amount: number;
+  total_gst: number;
+  shipping_charges: number;
+  total_amount: number;
+  pdf_url?: string;
+  status: InvoiceStatus;
+  generated_at?: Date;
+  sent_at?: Date;
+  created_at: Date;
+  updated_at: Date;
+}
+
+export interface InvoiceCreateInput {
+  order_id: string;
+  user_id: string;
+  subtotal: number;
+  cgst_amount: number;
+  sgst_amount: number;
+  igst_amount: number;
+  total_gst: number;
+  shipping_charges: number;
+  total_amount: number;
+}
+
+export interface GSTCalculation {
+  subtotal: number;
+  cgst: number;
+  sgst: number;
+  igst: number;
+  totalGst: number;
+  isInterState: boolean;
+}
+
 // API Response Types
 export interface ApiResponse<T = any> {
   success: boolean;
