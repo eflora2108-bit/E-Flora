@@ -4,6 +4,7 @@ import { CategoryController } from '../controllers/categoryController';
 import { ProductController } from '../controllers/productController';
 import { InvoiceController } from '../controllers/invoiceController';
 import { AnalyticsController } from '../controllers/analyticsController';
+import { ReviewController } from '../controllers/reviewController';
 import { authenticate } from '../middleware/auth';
 import { requireAdmin } from '../middleware/rbac';
 
@@ -47,5 +48,10 @@ router.get('/analytics/sales-by-category', AnalyticsController.getSalesByCategor
 router.get('/analytics/sales-by-supplier', AnalyticsController.getSalesBySupplier);
 router.get('/analytics/inventory-report', AnalyticsController.getInventoryReport);
 router.post('/analytics/export', AnalyticsController.exportReport);
+
+// Review moderation
+router.get('/reviews/pending', ReviewController.getPendingReviews);
+router.post('/reviews/:id/approve', ReviewController.approveReview);
+router.post('/reviews/:id/reject', ReviewController.rejectReview);
 
 export default router;

@@ -432,6 +432,95 @@ export interface GSTCalculation {
   isInterState: boolean;
 }
 
+// Review Types
+export enum ReviewStatus {
+  PENDING = 'pending',
+  APPROVED = 'approved',
+  REJECTED = 'rejected',
+}
+
+export interface Review {
+  id: string;
+  product_id: string;
+  user_id: string;
+  order_id: string;
+  rating: number;
+  title?: string;
+  comment?: string;
+  status: ReviewStatus;
+  helpful_count: number;
+  verified_purchase: boolean;
+  moderated_by?: string;
+  moderated_at?: Date;
+  created_at: Date;
+  updated_at: Date;
+}
+
+export interface ReviewCreateInput {
+  product_id: string;
+  user_id: string;
+  order_id: string;
+  rating: number;
+  title?: string;
+  comment?: string;
+}
+
+export interface ReviewUpdateInput {
+  rating?: number;
+  title?: string;
+  comment?: string;
+}
+
+// Wishlist Types
+export interface WishlistItem {
+  id: string;
+  user_id: string;
+  product_id: string;
+  notify_on_stock: boolean;
+  created_at: Date;
+  updated_at: Date;
+}
+
+export interface WishlistItemCreateInput {
+  user_id: string;
+  product_id: string;
+  notify_on_stock?: boolean;
+}
+
+// Notification Types
+export enum NotificationType {
+  ORDER_CONFIRMED = 'order_confirmed',
+  ORDER_SHIPPED = 'order_shipped',
+  ORDER_DELIVERED = 'order_delivered',
+  PRODUCT_APPROVED = 'product_approved',
+  PRODUCT_REJECTED = 'product_rejected',
+  SUPPLIER_APPROVED = 'supplier_approved',
+  SUPPLIER_REJECTED = 'supplier_rejected',
+  LOW_STOCK = 'low_stock',
+  WISHLIST_STOCK = 'wishlist_stock',
+  REVIEW_APPROVED = 'review_approved',
+  REVIEW_REJECTED = 'review_rejected',
+}
+
+export interface Notification {
+  id: string;
+  user_id: string;
+  type: NotificationType;
+  title: string;
+  message: string;
+  link?: string;
+  is_read: boolean;
+  created_at: Date;
+}
+
+export interface NotificationCreateInput {
+  user_id: string;
+  type: NotificationType;
+  title: string;
+  message: string;
+  link?: string;
+}
+
 // API Response Types
 export interface ApiResponse<T = any> {
   success: boolean;
