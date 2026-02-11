@@ -377,3 +377,110 @@ export interface Invoice {
   created_at: string;
   updated_at: string;
 }
+
+// Review Types
+export enum ReviewStatus {
+  PENDING = 'pending',
+  APPROVED = 'approved',
+  REJECTED = 'rejected',
+}
+
+export interface Review {
+  id: string;
+  product_id: string;
+  user_id: string;
+  order_id: string;
+  rating: number;
+  title?: string;
+  comment?: string;
+  status: ReviewStatus;
+  helpful_count: number;
+  verified_purchase: boolean;
+  moderated_by?: string;
+  moderated_at?: string;
+  rejection_reason?: string;
+  created_at: string;
+  updated_at: string;
+  // From joins
+  user_name?: string;
+  product_name?: string;
+}
+
+export interface ReviewFormData {
+  product_id: string;
+  order_id: string;
+  rating: number;
+  title?: string;
+  comment?: string;
+}
+
+export interface ReviewStats {
+  average_rating: number;
+  total_reviews: number;
+  rating_distribution: {
+    [key: number]: number;
+  };
+}
+
+// Wishlist Types
+export interface WishlistItem {
+  id: string;
+  user_id: string;
+  product_id: string;
+  notify_on_stock: boolean;
+  created_at: string;
+  updated_at: string;
+  // From joins
+  name?: string;
+  slug?: string;
+  sku?: string;
+  price?: number;
+  mrp?: number;
+  gst_percentage?: number;
+  stock_quantity?: number;
+  images?: string[];
+  supplier_id?: string;
+  supplier_name?: string;
+  category_name?: string;
+  is_active?: boolean;
+}
+
+// Notification Types
+export enum NotificationType {
+  ORDER_CONFIRMED = 'order_confirmed',
+  ORDER_SHIPPED = 'order_shipped',
+  ORDER_DELIVERED = 'order_delivered',
+  ORDER_CANCELLED = 'order_cancelled',
+  PRODUCT_APPROVED = 'product_approved',
+  PRODUCT_REJECTED = 'product_rejected',
+  REVIEW_APPROVED = 'review_approved',
+  REVIEW_REJECTED = 'review_rejected',
+  STOCK_ALERT = 'stock_alert',
+  LOW_STOCK_ALERT = 'low_stock_alert',
+  SUPPLIER_APPROVED = 'supplier_approved',
+  SUPPLIER_REJECTED = 'supplier_rejected',
+  SYSTEM = 'system',
+}
+
+export interface Notification {
+  id: string;
+  user_id: string;
+  type: NotificationType;
+  title: string;
+  message: string;
+  is_read: boolean;
+  link?: string;
+  metadata?: any;
+  created_at: string;
+}
+
+export interface NotificationResponse {
+  notifications: Notification[];
+  unreadCount: number;
+  pagination: {
+    page: number;
+    limit: number;
+    total: number;
+    totalPages: number;
+  };
+}

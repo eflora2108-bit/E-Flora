@@ -2,15 +2,26 @@ import { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { productService } from '../../services/productService';
 import { Product } from '../../types';
+import ReviewList from '../../components/Reviews/ReviewList';
+import WriteReview from '../../components/Reviews/WriteReview';
+import { useAuth } from '../../contexts/AuthContext';
+import { Heart } from 'lucide-react';
+import { wishlistService } from '../../services/wishlistService';
+import { toast } from 'react-hot-toast';
 
 export const ProductDetailPage = () => {
   const { slug } = useParams<{ slug: string }>();
   const navigate = useNavigate();
+  const { user, isAuthenticated } = useAuth();
   const [product, setProduct] = useState<Product | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
   const [quantity, setQuantity] = useState(1);
   const [selectedImage, setSelectedImage] = useState(0);
+  const [isWriteReviewOpen, setIsWriteReviewOpen] = useState(false);
+  const [isInWishlist, setIsInWishlist] = useState(false);
+  const [wishlistLoading, setWishlistLoading] = useState(false);
+  const [reviewRefreshKey, setReviewRefreshKey] = useState(0);
 
   useEffect(() => {
     if (slug) {
@@ -37,6 +48,46 @@ export const ProductDetailPage = () => {
     if (!product) return;
     // Cart functionality will be implemented in Phase 6
     alert(`Added ${quantity} x ${product.name} to cart!`);
+  };
+
+  const handleToggleWishlist = async () => {
+    if (!isAuthenticated) {
+      toast.error('Please login to add to wishlist');
+      navigate('/login');
+      return;
+    }
+
+    if (!product) return;
+
+    try {
+      setWishlistLoading(true);
+      if (isInWishlist) {
+        await wishlistService.removeFromWishlist(product.id);
+        setIsInWishlist(false);
+        toast.success('Removed from wishlist');
+      } else {
+        await wishlistService.addToWishlist(product.id);
+        setIsInWishlist(true);
+        toast.success('Added to wishlist');
+      }
+    } catch (error: any) {
+      toast.error(error.response?.data?.message || 'Failed to update wishlist');
+    } finally {
+      setWishlistLoading(false);
+    }
+  };
+
+  const handleWriteReview = () => {
+    if (!isAuthenticated) {
+      toast.error('Please login to write a review');
+      navigate('/login');
+      return;
+    }
+    setIsWriteReviewOpen(true);
+  };
+
+  const handleReviewSuccess = () => {
+    setReviewRefreshKey((prev) => prev + 1);
   };
 
   if (loading) {
@@ -267,6 +318,24 @@ export const ProductDetailPage = () => {
                 >
                   Add to Cart
                 </button>
+                <button
+                  onClick={handleToggleWishlist}
+                  disabled={wishlistLoading}
+                  style={{
+                    padding: '1rem',
+                    background: isInWishlist ? '#fee' : 'white',
+                    color: isInWishlist ? '#c33' : '#667eea',
+                    border: `2px solid ${isInWishlist ? '#c33' : '#667eea'}`,
+                    borderRadius: '8px',
+                    fontWeight: '600',
+                    cursor: 'pointer',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                  }}
+                >
+                  <Heart style={{ width: '24px', height: '24px', fill: isInWishlist ? '#c33' : 'none' }} />
+                </button>
               </div>
 
               {/* Product Details */}
@@ -313,8 +382,43 @@ export const ProductDetailPage = () => {
               </div>
             )}
           </div>
+
+          {/* Reviews Section */}
+          <div style={{ marginTop: '3rem', borderTop: '1px solid #e0e0e0', paddingTop: '2rem' }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '2rem' }}>
+              <h2>Customer Reviews</h2>
+              {isAuthenticated && (
+                <button
+                  onClick={handleWriteReview}
+                  style={{
+                    padding: '0.75rem 1.5rem',
+                    background: '#667eea',
+                    color: 'white',
+                    border: 'none',
+                    borderRadius: '8px',
+                    fontWeight: '600',
+                    cursor: 'pointer',
+                  }}
+                >
+                  Write a Review
+                </button>
+              )}
+            </div>
+            <ReviewList key={reviewRefreshKey} productId={product.id} />
+          </div>
         </div>
       </div>
+
+      {/* Write Review Modal */}
+      {product && (
+        <WriteReview
+          productId={product.id}
+          productName={product.name}
+          isOpen={isWriteReviewOpen}
+          onClose={() => setIsWriteReviewOpen(false)}
+          onSuccess={handleReviewSuccess}
+        />
+      )}
     </div>
   );
 };
