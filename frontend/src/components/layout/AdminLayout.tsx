@@ -49,7 +49,7 @@ export const AdminLayout = ({ children, title, subtitle }: AdminLayoutProps) => 
         {/* Branding */}
         <div className="flex items-center justify-between h-16 px-6 border-b border-gray-100">
           <Link to="/admin/dashboard" className="flex items-center gap-2">
-            <span className="text-xl font-bold text-gradient">eFlora</span>
+            <img src="/Eflora.jpeg" alt="eFlora" className="h-8 w-auto object-contain" />
             <span className="text-xs font-semibold bg-primary-100 text-primary-700 px-2 py-0.5 rounded-full">
               Admin
             </span>

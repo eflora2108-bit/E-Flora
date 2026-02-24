@@ -1,5 +1,5 @@
 import { Link } from 'react-router-dom';
-import { Leaf, Mail, Phone, MapPin } from 'lucide-react';
+import { Mail, Phone, MapPin } from 'lucide-react';
 
 const Footer = () => {
   return (
@@ -8,9 +8,8 @@ const Footer = () => {
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-12">
           {/* About */}
           <div>
-            <div className="flex items-center gap-2 mb-4">
-              <Leaf className="w-6 h-6 text-primary-400" />
-              <span className="text-xl font-bold text-white">eFlora</span>
+            <div className="flex items-center mb-4">
+              <img src="/Eflora.jpeg" alt="eFlora" className="h-10 w-auto object-contain brightness-0 invert" />
             </div>
             <p className="text-sm text-gray-400 mb-4 leading-relaxed">
               India's premier B2B and B2C plant marketplace connecting nurseries with plant lovers across the country.

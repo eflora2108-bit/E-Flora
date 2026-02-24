@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { ShoppingCart, Heart, User, LogOut, Menu, X, Search, Leaf } from 'lucide-react';
+import { ShoppingCart, Heart, User, LogOut, Menu, X, Search } from 'lucide-react';
 import NotificationBell from '../Notifications/NotificationBell';
 import { useAuth } from '../../contexts/AuthContext';
 import { useCart } from '../../contexts/CartContext';
@@ -30,9 +30,8 @@ const Header: React.FC = () => {
       <div className="max-w-7xl mx-auto px-4">
         <div className="flex items-center justify-between h-16">
           {/* Logo */}
-          <Link to="/" className="flex items-center gap-2 group">
-            <Leaf className="w-8 h-8 text-primary-600 group-hover:rotate-12 transition-transform" />
-            <span className="text-xl font-bold text-gray-900">eFlora</span>
+          <Link to="/" className="flex items-center group">
+            <img src="/Eflora.jpeg" alt="eFlora" className="h-10 w-auto object-contain" />
           </Link>
 
           {/* Search Bar - Desktop */}

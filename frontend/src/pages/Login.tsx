@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
 import { motion } from 'framer-motion';
-import { Mail, Lock, Leaf, ArrowRight } from 'lucide-react';
+import { Mail, Lock, ArrowRight } from 'lucide-react';
 import { ErrorAlert } from '../components/ui/ErrorAlert';
 
 export const LoginPage = () => {
@@ -39,7 +39,7 @@ export const LoginPage = () => {
             transition={{ duration: 0.6 }}
             className="text-center"
           >
-            <div className="text-8xl mb-6 animate-float">🌿</div>
+            <img src="/Eflora.jpeg" alt="eFlora" className="h-20 w-auto object-contain brightness-0 invert mb-6" />
             <h2 className="text-4xl font-bold mb-4">Welcome to eFlora</h2>
             <p className="text-xl text-white/80 max-w-md">
               India's Premier Plant Marketplace. Discover thousands of plants from verified nurseries.
@@ -61,10 +61,9 @@ export const LoginPage = () => {
           transition={{ duration: 0.5 }}
           className="w-full max-w-md"
         >
-          {/* Logo for mobile */}
-          <div className="flex items-center gap-2 mb-8">
-            <Leaf className="w-8 h-8 text-primary-600" />
-            <span className="text-2xl font-bold text-gray-900">eFlora</span>
+          {/* Logo */}
+          <div className="flex items-center mb-8">
+            <img src="/Eflora.jpeg" alt="eFlora" className="h-12 w-auto object-contain" />
           </div>
 
           <h1 className="text-3xl font-bold text-gray-900 mb-2">Welcome back</h1>
