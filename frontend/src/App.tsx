@@ -4,6 +4,9 @@ import { AuthProvider } from './contexts/AuthContext';
 import { CartProvider } from './contexts/CartContext';
 import Layout from './components/layout/Layout';
 
+// Home
+import { HomePage } from './pages/Home/HomePage';
+
 // Auth Pages
 import { LoginPage } from './pages/Login';
 import { RegisterPage } from './pages/Register';
@@ -24,6 +27,9 @@ import { InvoiceViewPage } from './pages/Invoices/InvoiceView';
 
 // Wishlist
 import WishlistPage from './pages/Wishlist/WishlistPage';
+
+// Profile
+import { ProfilePage } from './pages/Profile/ProfilePage';
 
 // Admin Pages
 import { AdminDashboardPage } from './pages/admin/Dashboard';
@@ -53,6 +59,7 @@ function App() {
               style: {
                 background: '#363636',
                 color: '#fff',
+                borderRadius: '12px',
               },
               success: {
                 duration: 3000,
@@ -71,11 +78,21 @@ function App() {
             }}
           />
           <Routes>
-            {/* Public Routes */}
+            {/* Home Page */}
+            <Route
+              path="/"
+              element={
+                <Layout>
+                  <HomePage />
+                </Layout>
+              }
+            />
+
+            {/* Auth Routes */}
             <Route
               path="/login"
               element={
-                <Layout showHeader={false}>
+                <Layout showHeader={false} showFooter={false}>
                   <LoginPage />
                 </Layout>
               }
@@ -83,7 +100,7 @@ function App() {
             <Route
               path="/register"
               element={
-                <Layout showHeader={false}>
+                <Layout showHeader={false} showFooter={false}>
                   <RegisterPage />
                 </Layout>
               }
@@ -107,7 +124,7 @@ function App() {
               }
             />
 
-            {/* Protected Routes */}
+            {/* Protected Customer Routes */}
             <Route
               path="/cart"
               element={
@@ -178,27 +195,23 @@ function App() {
                 </ProtectedRoute>
               }
             />
-
-            {/* Profile redirects to orders */}
             <Route
               path="/profile"
               element={
                 <ProtectedRoute>
                   <Layout>
-                    <OrderListPage />
+                    <ProfilePage />
                   </Layout>
                 </ProtectedRoute>
               }
             />
 
-            {/* Admin Routes */}
+            {/* Admin Routes - AdminLayout is rendered inside each page */}
             <Route
               path="/admin"
               element={
                 <ProtectedRoute requireAdmin>
-                  <Layout>
-                    <AdminDashboardPage />
-                  </Layout>
+                  <AdminDashboardPage />
                 </ProtectedRoute>
               }
             />
@@ -206,9 +219,7 @@ function App() {
               path="/admin/dashboard"
               element={
                 <ProtectedRoute requireAdmin>
-                  <Layout>
-                    <AdminDashboardPage />
-                  </Layout>
+                  <AdminDashboardPage />
                 </ProtectedRoute>
               }
             />
@@ -216,9 +227,7 @@ function App() {
               path="/admin/products/pending"
               element={
                 <ProtectedRoute requireAdmin>
-                  <Layout>
-                    <ProductModerationPage />
-                  </Layout>
+                  <ProductModerationPage />
                 </ProtectedRoute>
               }
             />
@@ -226,9 +235,7 @@ function App() {
               path="/admin/suppliers/pending"
               element={
                 <ProtectedRoute requireAdmin>
-                  <Layout>
-                    <AdminSupplierVerification />
-                  </Layout>
+                  <AdminSupplierVerification />
                 </ProtectedRoute>
               }
             />
@@ -236,9 +243,7 @@ function App() {
               path="/admin/orders"
               element={
                 <ProtectedRoute requireAdmin>
-                  <Layout>
-                    <OrderManagementPage />
-                  </Layout>
+                  <OrderManagementPage />
                 </ProtectedRoute>
               }
             />
@@ -246,21 +251,17 @@ function App() {
               path="/admin/reports"
               element={
                 <ProtectedRoute requireAdmin>
-                  <Layout>
-                    <AdminReportsPage />
-                  </Layout>
+                  <AdminReportsPage />
                 </ProtectedRoute>
               }
             />
 
-            {/* Supplier Routes */}
+            {/* Supplier Routes - SupplierLayout is rendered inside each page */}
             <Route
               path="/supplier/setup"
               element={
                 <ProtectedRoute requireSupplier>
-                  <Layout>
-                    <SupplierSetupPage />
-                  </Layout>
+                  <SupplierSetupPage />
                 </ProtectedRoute>
               }
             />
@@ -268,9 +269,7 @@ function App() {
               path="/supplier/products"
               element={
                 <ProtectedRoute requireSupplier>
-                  <Layout>
-                    <ProductManagementPage />
-                  </Layout>
+                  <ProductManagementPage />
                 </ProtectedRoute>
               }
             />
@@ -278,9 +277,7 @@ function App() {
               path="/supplier/orders"
               element={
                 <ProtectedRoute requireSupplier>
-                  <Layout>
-                    <SupplierOrdersPage />
-                  </Layout>
+                  <SupplierOrdersPage />
                 </ProtectedRoute>
               }
             />
@@ -288,16 +285,13 @@ function App() {
               path="/supplier/inventory"
               element={
                 <ProtectedRoute requireSupplier>
-                  <Layout>
-                    <InventoryDashboardPage />
-                  </Layout>
+                  <InventoryDashboardPage />
                 </ProtectedRoute>
               }
             />
 
-            {/* Default Routes */}
-            <Route path="/" element={<Navigate to="/products" replace />} />
-            <Route path="*" element={<Navigate to="/products" replace />} />
+            {/* Fallback */}
+            <Route path="*" element={<Navigate to="/" replace />} />
           </Routes>
         </CartProvider>
       </AuthProvider>

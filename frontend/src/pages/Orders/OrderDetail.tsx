@@ -5,6 +5,8 @@ import { orderService } from '../../services/orderService';
 import { invoiceService } from '../../services/invoiceService';
 import { Order, OrderStatus, PaymentStatus } from '../../types';
 import { toast } from 'react-hot-toast';
+import { LoadingSpinner } from '../../components/ui/LoadingSpinner';
+import { StatusBadge } from '../../components/ui/StatusBadge';
 
 export const OrderDetailPage = () => {
   const { id: orderId } = useParams<{ id: string }>();
@@ -51,19 +53,6 @@ export const OrderDetailPage = () => {
     }
   };
 
-  const getStatusColor = (status: OrderStatus) => {
-    const colors = {
-      [OrderStatus.PENDING]: '#f59e0b',
-      [OrderStatus.CONFIRMED]: '#3b82f6',
-      [OrderStatus.PROCESSING]: '#8b5cf6',
-      [OrderStatus.SHIPPED]: '#10b981',
-      [OrderStatus.DELIVERED]: '#059669',
-      [OrderStatus.CANCELLED]: '#ef4444',
-      [OrderStatus.RETURNED]: '#ef4444',
-    };
-    return colors[status] || '#666';
-  };
-
   const getStatusTimeline = () => {
     if (!order) return [];
 
@@ -87,30 +76,18 @@ export const OrderDetailPage = () => {
   if (!isAuthenticated) return null;
 
   if (loading) {
-    return (
-      <div style={{ minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-        <p>Loading order details...</p>
-      </div>
-    );
+    return <LoadingSpinner fullPage text="Loading order details..." />;
   }
 
   if (error || !order) {
     return (
-      <div style={{ minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-        <div style={{ textAlign: 'center' }}>
-          <div style={{ fontSize: '3rem', marginBottom: '1rem' }}>⚠️</div>
-          <p style={{ color: '#666', fontSize: '1.2rem', marginBottom: '1rem' }}>{error || 'Order not found'}</p>
+      <div className="min-h-screen flex items-center justify-center bg-gray-50">
+        <div className="text-center animate-fade-in">
+          <div className="text-6xl mb-4">⚠️</div>
+          <p className="text-gray-500 text-lg mb-4">{error || 'Order not found'}</p>
           <button
             onClick={() => navigate('/orders')}
-            style={{
-              padding: '0.75rem 1.5rem',
-              background: '#667eea',
-              color: 'white',
-              border: 'none',
-              borderRadius: '6px',
-              cursor: 'pointer',
-              fontWeight: '600',
-            }}
+            className="btn-primary"
           >
             Back to Orders
           </button>
@@ -122,69 +99,56 @@ export const OrderDetailPage = () => {
   const canCancel = order.status === OrderStatus.PENDING || order.status === OrderStatus.CONFIRMED;
 
   return (
-    <div style={{ minHeight: '100vh', background: '#f5f5f5', padding: '2rem' }}>
-      <div style={{ maxWidth: '1200px', margin: '0 auto' }}>
+    <div className="min-h-screen bg-gray-50 p-8">
+      <div className="max-w-7xl mx-auto animate-fade-in-up">
         {/* Header */}
-        <div style={{ marginBottom: '2rem', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+        <div className="mb-8 flex justify-between items-center">
           <div>
-            <h1 style={{ marginBottom: '0.5rem' }}>Order #{order.order_number}</h1>
-            <p style={{ color: '#666' }}>Placed on {new Date(order.created_at).toLocaleString()}</p>
+            <h1 className="text-3xl font-bold text-gray-900 mb-2">Order #{order.order_number}</h1>
+            <p className="text-gray-500">Placed on {new Date(order.created_at).toLocaleString()}</p>
           </div>
           <button
             onClick={() => navigate('/orders')}
-            style={{
-              padding: '0.5rem 1rem',
-              background: 'transparent',
-              color: '#667eea',
-              border: '1px solid #667eea',
-              borderRadius: '6px',
-              cursor: 'pointer',
-              fontWeight: '600',
-            }}
+            className="btn-secondary"
           >
-            ← Back to Orders
+            &larr; Back to Orders
           </button>
         </div>
 
-        <div style={{ display: 'grid', gridTemplateColumns: '2fr 1fr', gap: '1.5rem' }}>
+        <div className="grid grid-cols-1 lg:grid-cols-[2fr_1fr] gap-6">
           {/* Main Content */}
           <div>
             {/* Status Timeline */}
-            <div style={{ background: 'white', borderRadius: '12px', padding: '2rem', marginBottom: '1.5rem' }}>
-              <h2 style={{ marginBottom: '1.5rem' }}>Order Status</h2>
+            <div className="bg-white rounded-xl p-8 mb-6 shadow-sm">
+              <h2 className="text-xl font-bold text-gray-900 mb-6">Order Status</h2>
 
-              <div style={{ position: 'relative' }}>
+              <div className="relative">
                 {getStatusTimeline().map((item, index) => (
-                  <div key={index} style={{ display: 'flex', marginBottom: index === getStatusTimeline().length - 1 ? 0 : '2rem' }}>
+                  <div key={index} className={`flex ${index === getStatusTimeline().length - 1 ? '' : 'mb-8'}`}>
                     {/* Timeline dot and line */}
-                    <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', marginRight: '1rem' }}>
+                    <div className="flex flex-col items-center mr-4">
                       <div
-                        style={{
-                          width: '20px',
-                          height: '20px',
-                          borderRadius: '50%',
-                          background: item.completed ? '#10b981' : '#e0e0e0',
-                          border: item.completed ? '3px solid #10b981' : '3px solid #e0e0e0',
-                        }}
+                        className={`w-5 h-5 rounded-full border-[3px] ${
+                          item.completed
+                            ? 'bg-emerald-500 border-emerald-500'
+                            : 'bg-gray-200 border-gray-200'
+                        }`}
                       />
                       {index < getStatusTimeline().length - 1 && (
                         <div
-                          style={{
-                            width: '3px',
-                            flex: 1,
-                            background: item.completed ? '#10b981' : '#e0e0e0',
-                            minHeight: '30px',
-                          }}
+                          className={`w-[3px] flex-1 min-h-[30px] ${
+                            item.completed ? 'bg-emerald-500' : 'bg-gray-200'
+                          }`}
                         />
                       )}
                     </div>
                     {/* Timeline content */}
-                    <div style={{ flex: 1, paddingBottom: index === getStatusTimeline().length - 1 ? 0 : '1rem' }}>
-                      <div style={{ fontWeight: '600', marginBottom: '0.25rem', color: item.completed ? '#000' : '#999' }}>
+                    <div className={`flex-1 ${index === getStatusTimeline().length - 1 ? '' : 'pb-4'}`}>
+                      <div className={`font-semibold mb-1 ${item.completed ? 'text-gray-900' : 'text-gray-400'}`}>
                         {item.status}
                       </div>
                       {item.date && (
-                        <div style={{ fontSize: '0.85rem', color: '#666' }}>
+                        <div className="text-sm text-gray-500">
                           {new Date(item.date).toLocaleString()}
                         </div>
                       )}
@@ -194,43 +158,37 @@ export const OrderDetailPage = () => {
               </div>
 
               {order.tracking_number && (
-                <div style={{ marginTop: '1.5rem', padding: '1rem', background: '#f0f8ff', borderRadius: '8px' }}>
+                <div className="mt-6 p-4 bg-blue-50 rounded-lg text-sm">
                   <strong>Tracking Number:</strong> {order.tracking_number}
                 </div>
               )}
             </div>
 
             {/* Order Items */}
-            <div style={{ background: 'white', borderRadius: '12px', padding: '2rem' }}>
-              <h2 style={{ marginBottom: '1.5rem' }}>Order Items ({order.items?.length || 0})</h2>
+            <div className="bg-white rounded-xl p-8 shadow-sm">
+              <h2 className="text-xl font-bold text-gray-900 mb-6">Order Items ({order.items?.length || 0})</h2>
 
               {order.items && order.items.length > 0 ? (
-                <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+                <div className="flex flex-col gap-4">
                   {order.items.map((item) => (
                     <div
                       key={item.id}
-                      style={{
-                        display: 'flex',
-                        justifyContent: 'space-between',
-                        padding: '1rem',
-                        border: '1px solid #e0e0e0',
-                        borderRadius: '8px',
-                      }}
+                      className="flex justify-between p-4 border border-gray-200 rounded-lg hover:border-gray-300 transition-colors"
                     >
-                      <div style={{ flex: 1 }}>
-                        <div style={{ fontWeight: '600', marginBottom: '0.5rem' }}>{item.product_name}</div>
-                        <div style={{ fontSize: '0.85rem', color: '#666', marginBottom: '0.25rem' }}>
+                      <div className="flex-1">
+                        <div className="font-semibold text-gray-900 mb-2">{item.product_name}</div>
+                        <div className="text-sm text-gray-500 mb-1">
                           SKU: {item.product_sku}
                         </div>
-                        <div style={{ fontSize: '0.85rem', color: '#666' }}>
-                          Quantity: {item.quantity} × ₹{Number(item.unit_price).toFixed(2)}
+                        <div className="text-sm text-gray-500">
+                          Quantity: {item.quantity} x ₹{Number(item.unit_price).toFixed(2)}
                         </div>
                       </div>
-                      <div style={{ textAlign: 'right' }}>
-                        <div style={{ fontWeight: '700', fontSize: '1.1rem', marginBottom: '0.5rem' }}>
+                      <div className="text-right">
+                        <div className="font-bold text-lg text-gray-900 mb-1">
                           ₹{Number(item.total_amount).toFixed(2)}
                         </div>
-                        <div style={{ fontSize: '0.85rem', color: '#666' }}>
+                        <div className="text-sm text-gray-500">
                           (incl. GST ₹{Number(item.gst_amount).toFixed(2)})
                         </div>
                       </div>
@@ -238,7 +196,7 @@ export const OrderDetailPage = () => {
                   ))}
                 </div>
               ) : (
-                <p style={{ color: '#666' }}>No items found</p>
+                <p className="text-gray-500">No items found</p>
               )}
             </div>
           </div>
@@ -246,93 +204,56 @@ export const OrderDetailPage = () => {
           {/* Sidebar */}
           <div>
             {/* Order Summary */}
-            <div style={{ background: 'white', borderRadius: '12px', padding: '1.5rem', marginBottom: '1.5rem' }}>
-              <h3 style={{ marginBottom: '1rem' }}>Order Summary</h3>
+            <div className="bg-white rounded-xl p-6 mb-6 shadow-sm">
+              <h3 className="font-bold text-gray-900 mb-4">Order Summary</h3>
 
-              <div style={{ marginBottom: '1rem', paddingBottom: '1rem', borderBottom: '1px solid #f0f0f0' }}>
-                <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '0.5rem' }}>
-                  <span style={{ color: '#666' }}>Subtotal</span>
+              <div className="mb-4 pb-4 border-b border-gray-100">
+                <div className="flex justify-between mb-2">
+                  <span className="text-gray-500">Subtotal</span>
                   <span>₹{Number(order.subtotal).toFixed(2)}</span>
                 </div>
-                <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '0.5rem' }}>
-                  <span style={{ color: '#666' }}>GST</span>
+                <div className="flex justify-between mb-2">
+                  <span className="text-gray-500">GST</span>
                   <span>₹{Number(order.gst_amount).toFixed(2)}</span>
                 </div>
-                <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '0.5rem' }}>
-                  <span style={{ color: '#666' }}>Shipping</span>
+                <div className="flex justify-between mb-2">
+                  <span className="text-gray-500">Shipping</span>
                   <span>₹{Number(order.shipping_charges).toFixed(2)}</span>
                 </div>
               </div>
 
-              <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '1.2rem', fontWeight: '700' }}>
+              <div className="flex justify-between text-lg font-bold">
                 <span>Total</span>
-                <span style={{ color: '#667eea' }}>₹{Number(order.total_amount).toFixed(2)}</span>
+                <span className="text-primary-600">₹{Number(order.total_amount).toFixed(2)}</span>
               </div>
             </div>
 
             {/* Payment & Status */}
-            <div style={{ background: 'white', borderRadius: '12px', padding: '1.5rem', marginBottom: '1.5rem' }}>
-              <h3 style={{ marginBottom: '1rem' }}>Payment & Status</h3>
+            <div className="bg-white rounded-xl p-6 mb-6 shadow-sm">
+              <h3 className="font-bold text-gray-900 mb-4">Payment & Status</h3>
 
-              <div style={{ marginBottom: '1rem' }}>
-                <div style={{ fontSize: '0.85rem', color: '#666', marginBottom: '0.25rem' }}>Order Status</div>
-                <span
-                  style={{
-                    display: 'inline-block',
-                    padding: '0.5rem 1rem',
-                    background: getStatusColor(order.status) + '20',
-                    color: getStatusColor(order.status),
-                    borderRadius: '12px',
-                    fontWeight: '600',
-                    textTransform: 'capitalize',
-                  }}
-                >
-                  {order.status}
-                </span>
+              <div className="mb-4">
+                <div className="text-sm text-gray-500 mb-1">Order Status</div>
+                <StatusBadge status={order.status} size="md" />
               </div>
 
               <div>
-                <div style={{ fontSize: '0.85rem', color: '#666', marginBottom: '0.25rem' }}>Payment Status</div>
-                <span
-                  style={{
-                    display: 'inline-block',
-                    padding: '0.5rem 1rem',
-                    background: order.payment_status === PaymentStatus.COMPLETED ? '#10b98120' : '#f59e0b20',
-                    color: order.payment_status === PaymentStatus.COMPLETED ? '#10b981' : '#f59e0b',
-                    borderRadius: '12px',
-                    fontWeight: '600',
-                    textTransform: 'capitalize',
-                  }}
-                >
-                  {order.payment_status}
-                </span>
+                <div className="text-sm text-gray-500 mb-1">Payment Status</div>
+                <StatusBadge status={order.payment_status} size="md" />
               </div>
             </div>
 
             {/* Invoice */}
             {order.payment_status === PaymentStatus.COMPLETED && (
-              <div style={{ background: 'white', borderRadius: '12px', padding: '1.5rem', marginBottom: '1.5rem' }}>
-                <h3 style={{ marginBottom: '1rem' }}>Invoice</h3>
-                <p style={{ fontSize: '0.9rem', color: '#666', marginBottom: '1rem' }}>
+              <div className="bg-white rounded-xl p-6 mb-6 shadow-sm">
+                <h3 className="font-bold text-gray-900 mb-4">Invoice</h3>
+                <p className="text-sm text-gray-500 mb-4">
                   Download your GST-compliant invoice for this order
                 </p>
-                <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
+                <div className="flex flex-col gap-3">
                   <button
                     onClick={() => navigate(`/invoices/order/${order.id}`)}
-                    style={{
-                      width: '100%',
-                      padding: '0.875rem',
-                      background: '#667eea',
-                      color: 'white',
-                      border: 'none',
-                      borderRadius: '8px',
-                      fontWeight: '600',
-                      cursor: 'pointer',
-                      display: 'flex',
-                      alignItems: 'center',
-                      justifyContent: 'center',
-                      gap: '0.5rem',
-                    }}
+                    className="btn-primary w-full gap-2"
                   >
                     <span>📄</span>
                     <span>View Invoice</span>
@@ -348,20 +269,7 @@ export const OrderDetailPage = () => {
                           toast.error(err.message || 'Failed to download invoice');
                         });
                     }}
-                    style={{
-                      width: '100%',
-                      padding: '0.875rem',
-                      background: 'transparent',
-                      color: '#667eea',
-                      border: '1px solid #667eea',
-                      borderRadius: '8px',
-                      fontWeight: '600',
-                      cursor: 'pointer',
-                      display: 'flex',
-                      alignItems: 'center',
-                      justifyContent: 'center',
-                      gap: '0.5rem',
-                    }}
+                    className="btn-secondary w-full gap-2"
                   >
                     <span>📥</span>
                     <span>Download PDF</span>
@@ -375,16 +283,7 @@ export const OrderDetailPage = () => {
               <button
                 onClick={handleCancelOrder}
                 disabled={cancelling}
-                style={{
-                  width: '100%',
-                  padding: '1rem',
-                  background: cancelling ? '#ccc' : '#ef4444',
-                  color: 'white',
-                  border: 'none',
-                  borderRadius: '8px',
-                  fontWeight: '600',
-                  cursor: cancelling ? 'not-allowed' : 'pointer',
-                }}
+                className="btn-danger w-full py-3"
               >
                 {cancelling ? 'Cancelling...' : 'Cancel Order'}
               </button>

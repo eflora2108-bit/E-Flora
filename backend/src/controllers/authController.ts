@@ -200,6 +200,33 @@ export class AuthController {
     }
   );
 
+  // PUT /api/v1/auth/profile - Update user profile
+  static updateProfile = asyncHandler(
+    async (req: Request, res: Response, next: NextFunction) => {
+      const userId = req.user!.userId;
+      const { first_name, last_name, phone } = req.body;
+
+      const { UserModel } = await import('../models/User');
+      const user = await UserModel.findById(userId);
+
+      if (!user) {
+        throw new AppError('User not found', 404);
+      }
+
+      const updatedUser = await UserModel.update(userId, {
+        first_name: first_name || user.first_name,
+        last_name: last_name || user.last_name,
+        phone: phone !== undefined ? phone : user.phone,
+      });
+
+      res.json({
+        success: true,
+        message: 'Profile updated successfully',
+        data: UserModel.toPublic(updatedUser),
+      });
+    }
+  );
+
   // POST /api/v1/auth/logout - Logout (client-side only, server doesn't maintain session)
   static logout = asyncHandler(
     async (req: Request, res: Response, next: NextFunction) => {

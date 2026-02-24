@@ -1,7 +1,12 @@
 import { useState, useEffect } from 'react';
 import { productService } from '../../services/productService';
 import { categoryService } from '../../services/categoryService';
-import { Product, ProductFormData, Category, ProductModerationStatus } from '../../types';
+import { Product, ProductFormData, Category } from '../../types';
+import { SupplierLayout } from '../../components/layout/SupplierLayout';
+import { ErrorAlert } from '../../components/ui/ErrorAlert';
+import { LoadingSpinner } from '../../components/ui/LoadingSpinner';
+import { StatusBadge } from '../../components/ui/StatusBadge';
+import { Plus, X } from 'lucide-react';
 
 export const ProductManagementPage = () => {
   const [products, setProducts] = useState<Product[]>([]);
@@ -54,11 +59,15 @@ export const ProductManagementPage = () => {
     }
   };
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
+  const handleChange = (
+    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>
+  ) => {
     const { name, value } = e.target;
     setFormData({
       ...formData,
-      [name]: ['price', 'mrp', 'gst_percentage', 'stock_quantity', 'min_order_quantity'].includes(name)
+      [name]: ['price', 'mrp', 'gst_percentage', 'stock_quantity', 'min_order_quantity'].includes(
+        name
+      )
         ? parseFloat(value) || 0
         : value,
     });
@@ -137,318 +146,290 @@ export const ProductManagementPage = () => {
     setEditingProduct(null);
   };
 
-  const getStatusBadge = (status: ProductModerationStatus) => {
-    const colors = {
-      [ProductModerationStatus.PENDING]: '#f59e0b',
-      [ProductModerationStatus.APPROVED]: '#10b981',
-      [ProductModerationStatus.REJECTED]: '#ef4444',
-    };
-    return (
-      <span style={{
-        padding: '0.25rem 0.75rem',
-        borderRadius: '12px',
-        fontSize: '0.85rem',
-        fontWeight: '600',
-        background: colors[status] + '20',
-        color: colors[status],
-      }}>
-        {status}
-      </span>
-    );
-  };
-
   return (
-    <div style={{ minHeight: '100vh', background: '#f5f5f5', padding: '2rem' }}>
-      <div style={{ maxWidth: '1200px', margin: '0 auto' }}>
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '2rem' }}>
-          <div>
-            <h1 style={{ marginBottom: '0.5rem' }}>🌱 My Products</h1>
-            <p style={{ color: '#666' }}>Manage your product listings</p>
-          </div>
-          <button
-            onClick={() => {
-              resetForm();
-              setShowForm(!showForm);
-            }}
-            style={{
-              padding: '0.75rem 1.5rem',
-              background: '#667eea',
-              color: 'white',
-              border: 'none',
-              borderRadius: '8px',
-              fontWeight: '600',
-              cursor: 'pointer',
-            }}
-          >
-            {showForm ? 'Cancel' : '+ Add Product'}
-          </button>
-        </div>
+    <SupplierLayout
+      title="My Products"
+      subtitle="Manage your product listings"
+    >
+      {/* Header Action */}
+      <div className="flex justify-end -mt-4 mb-6">
+        <button
+          onClick={() => {
+            resetForm();
+            setShowForm(!showForm);
+          }}
+          className={showForm ? 'btn-ghost border border-gray-200' : 'btn-primary'}
+        >
+          {showForm ? (
+            <>
+              <X className="w-4 h-4 mr-2" />
+              Cancel
+            </>
+          ) : (
+            <>
+              <Plus className="w-4 h-4 mr-2" />
+              Add Product
+            </>
+          )}
+        </button>
+      </div>
 
-        {error && (
-          <div style={{ padding: '0.75rem', marginBottom: '1rem', background: '#fee', color: '#c33', borderRadius: '6px' }}>
-            {error}
-          </div>
-        )}
+      {error && <ErrorAlert message={error} onDismiss={() => setError('')} />}
 
-        {showForm && (
-          <div style={{ background: 'white', borderRadius: '12px', padding: '2rem', marginBottom: '2rem' }}>
-            <h2 style={{ marginBottom: '1.5rem' }}>{editingProduct ? 'Edit Product' : 'Add New Product'}</h2>
-            <form onSubmit={handleSubmit}>
-              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
-                <div style={{ gridColumn: '1 / -1' }}>
-                  <label style={{ display: 'block', marginBottom: '0.5rem', fontWeight: '500' }}>Category *</label>
-                  <select
-                    name="category_id"
-                    value={formData.category_id}
-                    onChange={handleChange}
-                    required
-                    style={{ width: '100%', padding: '0.75rem', border: '1px solid #ddd', borderRadius: '6px' }}
-                  >
-                    <option value="">Select category</option>
-                    {categories.map((cat) => (
-                      <option key={cat.id} value={cat.id}>{cat.name}</option>
-                    ))}
-                  </select>
-                </div>
-
-                <div style={{ gridColumn: '1 / -1' }}>
-                  <label style={{ display: 'block', marginBottom: '0.5rem', fontWeight: '500' }}>Product Name *</label>
-                  <input
-                    type="text"
-                    name="name"
-                    value={formData.name}
-                    onChange={handleChange}
-                    required
-                    style={{ width: '100%', padding: '0.75rem', border: '1px solid #ddd', borderRadius: '6px' }}
-                  />
-                </div>
-
-                <div style={{ gridColumn: '1 / -1' }}>
-                  <label style={{ display: 'block', marginBottom: '0.5rem', fontWeight: '500' }}>Description</label>
-                  <textarea
-                    name="description"
-                    value={formData.description}
-                    onChange={handleChange}
-                    rows={4}
-                    style={{ width: '100%', padding: '0.75rem', border: '1px solid #ddd', borderRadius: '6px', fontFamily: 'inherit' }}
-                  />
-                </div>
-
-                <div>
-                  <label style={{ display: 'block', marginBottom: '0.5rem', fontWeight: '500' }}>Price (₹) *</label>
-                  <input
-                    type="number"
-                    name="price"
-                    value={formData.price}
-                    onChange={handleChange}
-                    required
-                    min="0"
-                    step="0.01"
-                    style={{ width: '100%', padding: '0.75rem', border: '1px solid #ddd', borderRadius: '6px' }}
-                  />
-                </div>
-
-                <div>
-                  <label style={{ display: 'block', marginBottom: '0.5rem', fontWeight: '500' }}>MRP (₹)</label>
-                  <input
-                    type="number"
-                    name="mrp"
-                    value={formData.mrp}
-                    onChange={handleChange}
-                    min="0"
-                    step="0.01"
-                    style={{ width: '100%', padding: '0.75rem', border: '1px solid #ddd', borderRadius: '6px' }}
-                  />
-                </div>
-
-                <div>
-                  <label style={{ display: 'block', marginBottom: '0.5rem', fontWeight: '500' }}>GST (%) *</label>
-                  <input
-                    type="number"
-                    name="gst_percentage"
-                    value={formData.gst_percentage}
-                    onChange={handleChange}
-                    required
-                    min="0"
-                    max="100"
-                    step="0.01"
-                    style={{ width: '100%', padding: '0.75rem', border: '1px solid #ddd', borderRadius: '6px' }}
-                  />
-                </div>
-
-                <div>
-                  <label style={{ display: 'block', marginBottom: '0.5rem', fontWeight: '500' }}>Stock Quantity *</label>
-                  <input
-                    type="number"
-                    name="stock_quantity"
-                    value={formData.stock_quantity}
-                    onChange={handleChange}
-                    required
-                    min="0"
-                    style={{ width: '100%', padding: '0.75rem', border: '1px solid #ddd', borderRadius: '6px' }}
-                  />
-                </div>
-
-                <div>
-                  <label style={{ display: 'block', marginBottom: '0.5rem', fontWeight: '500' }}>Min Order Quantity *</label>
-                  <input
-                    type="number"
-                    name="min_order_quantity"
-                    value={formData.min_order_quantity}
-                    onChange={handleChange}
-                    required
-                    min="1"
-                    style={{ width: '100%', padding: '0.75rem', border: '1px solid #ddd', borderRadius: '6px' }}
-                  />
-                </div>
-
-                <div style={{ gridColumn: '1 / -1' }}>
-                  <label style={{ display: 'block', marginBottom: '0.5rem', fontWeight: '500' }}>Care Instructions</label>
-                  <textarea
-                    name="care_instructions"
-                    value={formData.care_instructions}
-                    onChange={handleChange}
-                    rows={3}
-                    style={{ width: '100%', padding: '0.75rem', border: '1px solid #ddd', borderRadius: '6px', fontFamily: 'inherit' }}
-                  />
-                </div>
-
-                {!editingProduct && (
-                  <div style={{ gridColumn: '1 / -1' }}>
-                    <label style={{ display: 'block', marginBottom: '0.5rem', fontWeight: '500' }}>Product Images</label>
-                    <input
-                      type="file"
-                      multiple
-                      accept="image/*"
-                      onChange={(e) => setImageFiles(e.target.files)}
-                      style={{ width: '100%', padding: '0.75rem', border: '1px solid #ddd', borderRadius: '6px' }}
-                    />
-                    <p style={{ fontSize: '0.85rem', color: '#666', marginTop: '0.5rem' }}>
-                      Upload up to 10 images (JPG, PNG, WEBP)
-                    </p>
-                  </div>
-                )}
+      {showForm && (
+        <div className="bg-white rounded-2xl p-6 lg:p-8 border border-gray-100 shadow-sm mb-6">
+          <h2 className="text-lg font-semibold text-gray-900 mb-6">
+            {editingProduct ? 'Edit Product' : 'Add New Product'}
+          </h2>
+          <form onSubmit={handleSubmit}>
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <div className="sm:col-span-2">
+                <label className="block text-sm font-medium text-gray-700 mb-2">Category *</label>
+                <select
+                  name="category_id"
+                  value={formData.category_id}
+                  onChange={handleChange}
+                  required
+                  className="input-base"
+                >
+                  <option value="">Select category</option>
+                  {categories.map((cat) => (
+                    <option key={cat.id} value={cat.id}>
+                      {cat.name}
+                    </option>
+                  ))}
+                </select>
               </div>
 
-              <button
-                type="submit"
-                disabled={loading}
-                style={{
-                  marginTop: '1.5rem',
-                  width: '100%',
-                  padding: '0.875rem',
-                  background: loading ? '#ccc' : '#667eea',
-                  color: 'white',
-                  border: 'none',
-                  borderRadius: '6px',
-                  fontWeight: '600',
-                  cursor: loading ? 'not-allowed' : 'pointer',
-                }}
-              >
-                {loading ? 'Saving...' : editingProduct ? 'Update Product' : 'Add Product'}
-              </button>
-            </form>
-          </div>
-        )}
+              <div className="sm:col-span-2">
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Product Name *
+                </label>
+                <input
+                  type="text"
+                  name="name"
+                  value={formData.name}
+                  onChange={handleChange}
+                  required
+                  className="input-base"
+                />
+              </div>
 
-        {/* Filter Tabs */}
-        <div style={{ background: 'white', borderRadius: '12px', padding: '1.5rem', marginBottom: '1rem' }}>
-          <div style={{ display: 'flex', gap: '1rem' }}>
-            {['all', 'pending', 'approved', 'rejected'].map((status) => (
-              <button
-                key={status}
-                onClick={() => setStatusFilter(status)}
-                style={{
-                  padding: '0.5rem 1rem',
-                  background: statusFilter === status ? '#667eea' : 'transparent',
-                  color: statusFilter === status ? 'white' : '#666',
-                  border: statusFilter === status ? 'none' : '1px solid #ddd',
-                  borderRadius: '6px',
-                  cursor: 'pointer',
-                  fontWeight: '500',
-                  textTransform: 'capitalize',
-                }}
-              >
-                {status}
-              </button>
-            ))}
-          </div>
-        </div>
+              <div className="sm:col-span-2">
+                <label className="block text-sm font-medium text-gray-700 mb-2">Description</label>
+                <textarea
+                  name="description"
+                  value={formData.description}
+                  onChange={handleChange}
+                  rows={4}
+                  className="input-base"
+                />
+              </div>
 
-        {/* Products List */}
-        <div style={{ background: 'white', borderRadius: '12px', padding: '1.5rem' }}>
-          {loading && !showForm ? (
-            <p style={{ textAlign: 'center', color: '#666' }}>Loading products...</p>
-          ) : products.length === 0 ? (
-            <p style={{ textAlign: 'center', color: '#666' }}>No products found. Add your first product!</p>
-          ) : (
-            <div style={{ overflowX: 'auto' }}>
-              <table style={{ width: '100%', borderCollapse: 'collapse' }}>
-                <thead>
-                  <tr style={{ borderBottom: '2px solid #f0f0f0' }}>
-                    <th style={{ padding: '1rem', textAlign: 'left', fontWeight: '600' }}>Product</th>
-                    <th style={{ padding: '1rem', textAlign: 'left', fontWeight: '600' }}>SKU</th>
-                    <th style={{ padding: '1rem', textAlign: 'left', fontWeight: '600' }}>Price</th>
-                    <th style={{ padding: '1rem', textAlign: 'left', fontWeight: '600' }}>Stock</th>
-                    <th style={{ padding: '1rem', textAlign: 'left', fontWeight: '600' }}>Status</th>
-                    <th style={{ padding: '1rem', textAlign: 'left', fontWeight: '600' }}>Actions</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {products.map((product) => (
-                    <tr key={product.id} style={{ borderBottom: '1px solid #f0f0f0' }}>
-                      <td style={{ padding: '1rem' }}>
-                        <div style={{ fontWeight: '500' }}>{product.name}</div>
-                        <div style={{ fontSize: '0.85rem', color: '#666' }}>{product.category?.name}</div>
-                      </td>
-                      <td style={{ padding: '1rem', fontSize: '0.9rem', color: '#666' }}>{product.sku}</td>
-                      <td style={{ padding: '1rem', fontWeight: '600' }}>₹{Number(product.price).toFixed(2)}</td>
-                      <td style={{ padding: '1rem' }}>
-                        <span style={{ color: product.stock_quantity < 10 ? '#ef4444' : '#666' }}>
-                          {product.stock_quantity}
-                        </span>
-                      </td>
-                      <td style={{ padding: '1rem' }}>{getStatusBadge(product.moderation_status)}</td>
-                      <td style={{ padding: '1rem' }}>
-                        <div style={{ display: 'flex', gap: '0.5rem' }}>
-                          <button
-                            onClick={() => handleEdit(product)}
-                            style={{
-                              padding: '0.5rem 0.75rem',
-                              background: '#667eea',
-                              color: 'white',
-                              border: 'none',
-                              borderRadius: '4px',
-                              cursor: 'pointer',
-                              fontSize: '0.85rem',
-                            }}
-                          >
-                            Edit
-                          </button>
-                          <button
-                            onClick={() => handleDelete(product.id)}
-                            style={{
-                              padding: '0.5rem 0.75rem',
-                              background: '#ef4444',
-                              color: 'white',
-                              border: 'none',
-                              borderRadius: '4px',
-                              cursor: 'pointer',
-                              fontSize: '0.85rem',
-                            }}
-                          >
-                            Delete
-                          </button>
-                        </div>
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">Price (₹) *</label>
+                <input
+                  type="number"
+                  name="price"
+                  value={formData.price}
+                  onChange={handleChange}
+                  required
+                  min="0"
+                  step="0.01"
+                  className="input-base"
+                />
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">MRP (₹)</label>
+                <input
+                  type="number"
+                  name="mrp"
+                  value={formData.mrp}
+                  onChange={handleChange}
+                  min="0"
+                  step="0.01"
+                  className="input-base"
+                />
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">GST (%) *</label>
+                <input
+                  type="number"
+                  name="gst_percentage"
+                  value={formData.gst_percentage}
+                  onChange={handleChange}
+                  required
+                  min="0"
+                  max="100"
+                  step="0.01"
+                  className="input-base"
+                />
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Stock Quantity *
+                </label>
+                <input
+                  type="number"
+                  name="stock_quantity"
+                  value={formData.stock_quantity}
+                  onChange={handleChange}
+                  required
+                  min="0"
+                  className="input-base"
+                />
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Min Order Quantity *
+                </label>
+                <input
+                  type="number"
+                  name="min_order_quantity"
+                  value={formData.min_order_quantity}
+                  onChange={handleChange}
+                  required
+                  min="1"
+                  className="input-base"
+                />
+              </div>
+
+              <div className="sm:col-span-2">
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Care Instructions
+                </label>
+                <textarea
+                  name="care_instructions"
+                  value={formData.care_instructions}
+                  onChange={handleChange}
+                  rows={3}
+                  className="input-base"
+                />
+              </div>
+
+              {!editingProduct && (
+                <div className="sm:col-span-2">
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    Product Images
+                  </label>
+                  <input
+                    type="file"
+                    multiple
+                    accept="image/*"
+                    onChange={(e) => setImageFiles(e.target.files)}
+                    className="input-base"
+                  />
+                  <p className="text-xs text-gray-500 mt-1">
+                    Upload up to 10 images (JPG, PNG, WEBP)
+                  </p>
+                </div>
+              )}
             </div>
-          )}
+
+            <button
+              type="submit"
+              disabled={loading}
+              className="btn-primary w-full mt-6"
+            >
+              {loading ? 'Saving...' : editingProduct ? 'Update Product' : 'Add Product'}
+            </button>
+          </form>
+        </div>
+      )}
+
+      {/* Filter Tabs */}
+      <div className="bg-white rounded-2xl p-4 border border-gray-100 shadow-sm mb-4">
+        <div className="flex gap-2 flex-wrap">
+          {['all', 'pending', 'approved', 'rejected'].map((status) => (
+            <button
+              key={status}
+              onClick={() => setStatusFilter(status)}
+              className={`px-4 py-2 rounded-lg text-sm font-medium transition-all capitalize ${
+                statusFilter === status
+                  ? 'bg-primary-600 text-white shadow-sm'
+                  : 'text-gray-500 hover:bg-gray-100 border border-gray-200'
+              }`}
+            >
+              {status}
+            </button>
+          ))}
         </div>
       </div>
-    </div>
+
+      {/* Products List */}
+      <div className="bg-white rounded-2xl p-6 border border-gray-100 shadow-sm">
+        {loading && !showForm ? (
+          <LoadingSpinner text="Loading products..." />
+        ) : products.length === 0 ? (
+          <p className="text-center text-gray-500 py-8">
+            No products found. Add your first product!
+          </p>
+        ) : (
+          <div className="overflow-x-auto rounded-xl border border-gray-200">
+            <table className="w-full text-sm">
+              <thead>
+                <tr className="bg-gray-50 border-b border-gray-200">
+                  <th className="px-4 py-3 text-left font-semibold text-gray-600">Product</th>
+                  <th className="px-4 py-3 text-left font-semibold text-gray-600">SKU</th>
+                  <th className="px-4 py-3 text-left font-semibold text-gray-600">Price</th>
+                  <th className="px-4 py-3 text-left font-semibold text-gray-600">Stock</th>
+                  <th className="px-4 py-3 text-left font-semibold text-gray-600">Status</th>
+                  <th className="px-4 py-3 text-left font-semibold text-gray-600">Actions</th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-gray-100">
+                {products.map((product) => (
+                  <tr
+                    key={product.id}
+                    className="bg-white hover:bg-gray-50 transition-colors"
+                  >
+                    <td className="px-4 py-3">
+                      <div className="font-medium text-gray-900">{product.name}</div>
+                      <div className="text-xs text-gray-500">{product.category?.name}</div>
+                    </td>
+                    <td className="px-4 py-3 text-gray-500">{product.sku}</td>
+                    <td className="px-4 py-3 font-semibold text-gray-900">
+                      ₹{Number(product.price).toFixed(2)}
+                    </td>
+                    <td className="px-4 py-3">
+                      <span
+                        className={`font-semibold ${
+                          product.stock_quantity < 10 ? 'text-red-500' : 'text-gray-600'
+                        }`}
+                      >
+                        {product.stock_quantity}
+                      </span>
+                    </td>
+                    <td className="px-4 py-3">
+                      <StatusBadge status={product.moderation_status} size="sm" />
+                    </td>
+                    <td className="px-4 py-3">
+                      <div className="flex gap-2">
+                        <button
+                          onClick={() => handleEdit(product)}
+                          className="btn-primary text-xs px-3 py-1.5"
+                        >
+                          Edit
+                        </button>
+                        <button
+                          onClick={() => handleDelete(product.id)}
+                          className="btn-danger text-xs px-3 py-1.5"
+                        >
+                          Delete
+                        </button>
+                      </div>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        )}
+      </div>
+    </SupplierLayout>
   );
 };

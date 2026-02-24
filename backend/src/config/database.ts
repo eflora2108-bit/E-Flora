@@ -2,16 +2,27 @@ import { Pool, PoolClient, QueryResult } from 'pg';
 import env from './env';
 
 // PostgreSQL connection pool
-const pool = new Pool({
-  host: env.DB_HOST,
-  port: env.DB_PORT,
-  database: env.DB_NAME,
-  user: env.DB_USER,
-  password: env.DB_PASSWORD,
-  max: 20, // Maximum number of clients in the pool
-  idleTimeoutMillis: 30000, // Close idle clients after 30 seconds
-  connectionTimeoutMillis: 2000, // Return an error after 2 seconds if connection could not be established
-});
+// Support both DATABASE_URL (Render) and individual params (local dev)
+const poolConfig = process.env.DATABASE_URL
+  ? {
+      connectionString: process.env.DATABASE_URL,
+      ssl: { rejectUnauthorized: false },
+      max: 20,
+      idleTimeoutMillis: 30000,
+      connectionTimeoutMillis: 5000,
+    }
+  : {
+      host: env.DB_HOST,
+      port: env.DB_PORT,
+      database: env.DB_NAME,
+      user: env.DB_USER,
+      password: env.DB_PASSWORD,
+      max: 20,
+      idleTimeoutMillis: 30000,
+      connectionTimeoutMillis: 2000,
+    };
+
+const pool = new Pool(poolConfig);
 
 // Test database connection
 pool.on('connect', () => {

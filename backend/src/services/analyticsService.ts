@@ -381,7 +381,7 @@ export class AnalyticsService {
         c.name as category_name,
         COUNT(DISTINCT oi.order_id) as order_count,
         SUM(oi.quantity) as total_quantity,
-        COALESCE(SUM(oi.total_amount), 0) as total_revenue
+        COALESCE(SUM(oi.total_price), 0) as total_revenue
       FROM categories c
       INNER JOIN products p ON c.id = p.category_id
       INNER JOIN order_items oi ON p.id = oi.product_id
@@ -422,7 +422,7 @@ export class AnalyticsService {
         u.email,
         COUNT(DISTINCT oi.order_id) as order_count,
         SUM(oi.quantity) as total_quantity,
-        COALESCE(SUM(oi.total_amount), 0) as total_revenue
+        COALESCE(SUM(oi.total_price), 0) as total_revenue
       FROM suppliers s
       INNER JOIN users u ON s.user_id = u.id
       INNER JOIN order_items oi ON s.id = oi.supplier_id

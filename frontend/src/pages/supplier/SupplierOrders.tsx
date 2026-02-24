@@ -1,6 +1,11 @@
 import { useState, useEffect } from 'react';
 import { useAuth } from '../../contexts/AuthContext';
 import api from '../../services/api';
+import { SupplierLayout } from '../../components/layout/SupplierLayout';
+import { LoadingSpinner } from '../../components/ui/LoadingSpinner';
+import { ErrorAlert } from '../../components/ui/ErrorAlert';
+import { EmptyState } from '../../components/ui/EmptyState';
+import { StatusBadge } from '../../components/ui/StatusBadge';
 
 interface SupplierOrderItem {
   id: string;
@@ -42,19 +47,6 @@ export const SupplierOrdersPage = () => {
     }
   };
 
-  const getStatusColor = (status: string) => {
-    const colors: { [key: string]: string } = {
-      pending: '#f59e0b',
-      confirmed: '#3b82f6',
-      processing: '#8b5cf6',
-      shipped: '#10b981',
-      delivered: '#059669',
-      cancelled: '#ef4444',
-      returned: '#ef4444',
-    };
-    return colors[status.toLowerCase()] || '#666';
-  };
-
   // Group order items by order
   const groupedOrders = orderItems.reduce((acc, item) => {
     if (!acc[item.order_id]) {
@@ -73,130 +65,94 @@ export const SupplierOrdersPage = () => {
   const orders = Object.values(groupedOrders);
 
   return (
-    <div style={{ minHeight: '100vh', background: '#f5f5f5', padding: '2rem' }}>
-      <div style={{ maxWidth: '1400px', margin: '0 auto' }}>
-        <div style={{ marginBottom: '2rem' }}>
-          <h1 style={{ marginBottom: '0.5rem' }}>📦 My Orders</h1>
-          <p style={{ color: '#666' }}>Orders containing your products</p>
-        </div>
+    <SupplierLayout title="My Orders" subtitle="Orders containing your products">
+      {error && <ErrorAlert message={error} onDismiss={() => setError('')} />}
 
-        {error && (
-          <div style={{ padding: '0.75rem', marginBottom: '1rem', background: '#fee', color: '#c33', borderRadius: '6px' }}>
-            {error}
+      <div className="bg-white rounded-2xl p-6 border border-gray-100 shadow-sm">
+        {loading ? (
+          <LoadingSpinner text="Loading orders..." />
+        ) : orders.length === 0 ? (
+          <EmptyState
+            icon={<span className="text-5xl">📦</span>}
+            title="No orders yet"
+            description="Orders containing your products will appear here"
+          />
+        ) : (
+          <div className="flex flex-col gap-6">
+            {orders.map((order) => (
+              <div
+                key={order.order_id}
+                className="border border-gray-200 rounded-xl overflow-hidden"
+              >
+                {/* Order Header */}
+                <div className="px-6 py-4 bg-gray-50 border-b border-gray-200 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2">
+                  <div>
+                    <div className="font-semibold text-gray-900 mb-0.5">
+                      Order #{order.order_number}
+                    </div>
+                    <div className="text-sm text-gray-500">
+                      Placed on {new Date(order.order_date).toLocaleDateString()}
+                    </div>
+                  </div>
+                  <StatusBadge status={order.order_status} size="md" />
+                </div>
+
+                {/* Order Items */}
+                <div className="p-6">
+                  <h4 className="text-sm font-medium text-gray-500 mb-3">
+                    Your Products in This Order:
+                  </h4>
+                  <div className="flex flex-col gap-3">
+                    {order.items.map((item: SupplierOrderItem) => (
+                      <div
+                        key={item.id}
+                        className="flex justify-between items-start p-4 bg-gray-50 rounded-xl"
+                      >
+                        <div>
+                          <div className="font-semibold text-gray-900 mb-1">
+                            {item.product_name}
+                          </div>
+                          <div className="text-sm text-gray-500">
+                            SKU: {item.product_sku} &bull; Qty: {item.quantity}
+                          </div>
+                        </div>
+                        <div className="text-right">
+                          <div className="font-bold text-gray-900">
+                            ₹{Number(item.total_amount).toFixed(2)}
+                          </div>
+                          <div className="text-sm text-gray-500">
+                            (incl. GST ₹{Number(item.gst_amount).toFixed(2)})
+                          </div>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+
+                  {/* Fulfillment Actions */}
+                  {order.order_status === 'confirmed' && (
+                    <div className="mt-4 p-4 bg-blue-50 rounded-xl">
+                      <div className="text-sm font-semibold text-blue-800 mb-1">
+                        Ready to Ship
+                      </div>
+                      <div className="text-sm text-blue-600">
+                        Contact admin to mark this order as shipped with tracking details
+                      </div>
+                    </div>
+                  )}
+
+                  {order.order_status === 'shipped' && (
+                    <div className="mt-4 p-4 bg-emerald-50 rounded-xl">
+                      <div className="text-sm font-semibold text-emerald-800">
+                        Shipped
+                      </div>
+                    </div>
+                  )}
+                </div>
+              </div>
+            ))}
           </div>
         )}
-
-        <div style={{ background: 'white', borderRadius: '12px', padding: '1.5rem' }}>
-          {loading ? (
-            <p style={{ textAlign: 'center', color: '#666', padding: '2rem 0' }}>Loading orders...</p>
-          ) : orders.length === 0 ? (
-            <div style={{ textAlign: 'center', padding: '3rem 0' }}>
-              <div style={{ fontSize: '4rem', marginBottom: '1rem' }}>📦</div>
-              <h2 style={{ marginBottom: '1rem' }}>No orders yet</h2>
-              <p style={{ color: '#666' }}>Orders containing your products will appear here</p>
-            </div>
-          ) : (
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
-              {orders.map((order) => (
-                <div
-                  key={order.order_id}
-                  style={{
-                    border: '1px solid #e0e0e0',
-                    borderRadius: '8px',
-                    overflow: 'hidden',
-                  }}
-                >
-                  {/* Order Header */}
-                  <div
-                    style={{
-                      padding: '1rem 1.5rem',
-                      background: '#f9f9f9',
-                      borderBottom: '1px solid #e0e0e0',
-                      display: 'flex',
-                      justifyContent: 'space-between',
-                      alignItems: 'center',
-                    }}
-                  >
-                    <div>
-                      <div style={{ fontWeight: '600', marginBottom: '0.25rem' }}>
-                        Order #{order.order_number}
-                      </div>
-                      <div style={{ fontSize: '0.85rem', color: '#666' }}>
-                        Placed on {new Date(order.order_date).toLocaleDateString()}
-                      </div>
-                    </div>
-                    <span
-                      style={{
-                        padding: '0.5rem 1rem',
-                        background: getStatusColor(order.order_status) + '20',
-                        color: getStatusColor(order.order_status),
-                        borderRadius: '12px',
-                        fontSize: '0.9rem',
-                        fontWeight: '600',
-                        textTransform: 'capitalize',
-                      }}
-                    >
-                      {order.order_status}
-                    </span>
-                  </div>
-
-                  {/* Order Items */}
-                  <div style={{ padding: '1.5rem' }}>
-                    <h4 style={{ marginBottom: '1rem', fontSize: '0.9rem', color: '#666' }}>Your Products in This Order:</h4>
-                    <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
-                      {order.items.map((item: SupplierOrderItem) => (
-                        <div
-                          key={item.id}
-                          style={{
-                            display: 'flex',
-                            justifyContent: 'space-between',
-                            padding: '0.75rem',
-                            background: '#f9f9f9',
-                            borderRadius: '6px',
-                          }}
-                        >
-                          <div>
-                            <div style={{ fontWeight: '600', marginBottom: '0.25rem' }}>{item.product_name}</div>
-                            <div style={{ fontSize: '0.85rem', color: '#666' }}>
-                              SKU: {item.product_sku} • Qty: {item.quantity}
-                            </div>
-                          </div>
-                          <div style={{ textAlign: 'right' }}>
-                            <div style={{ fontWeight: '700' }}>₹{Number(item.total_amount).toFixed(2)}</div>
-                            <div style={{ fontSize: '0.85rem', color: '#666' }}>
-                              (incl. GST ₹{Number(item.gst_amount).toFixed(2)})
-                            </div>
-                          </div>
-                        </div>
-                      ))}
-                    </div>
-
-                    {/* Fulfillment Actions */}
-                    {order.order_status === 'confirmed' && (
-                      <div style={{ marginTop: '1rem', padding: '1rem', background: '#e7f3ff', borderRadius: '6px' }}>
-                        <div style={{ fontSize: '0.9rem', fontWeight: '600', marginBottom: '0.5rem' }}>
-                          ✓ Ready to Ship
-                        </div>
-                        <div style={{ fontSize: '0.85rem', color: '#666' }}>
-                          Contact admin to mark this order as shipped with tracking details
-                        </div>
-                      </div>
-                    )}
-
-                    {order.order_status === 'shipped' && (
-                      <div style={{ marginTop: '1rem', padding: '1rem', background: '#d1fae5', borderRadius: '6px' }}>
-                        <div style={{ fontSize: '0.9rem', fontWeight: '600', color: '#065f46' }}>
-                          ✓ Shipped
-                        </div>
-                      </div>
-                    )}
-                  </div>
-                </div>
-              ))}
-            </div>
-          )}
-        </div>
       </div>
-    </div>
+    </SupplierLayout>
   );
 };

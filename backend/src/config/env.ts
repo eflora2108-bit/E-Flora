@@ -75,12 +75,11 @@ interface EnvConfig {
 }
 
 function validateEnv(): EnvConfig {
+  // If DATABASE_URL is provided (Render), individual DB vars are not required
+  const hasDatabaseUrl = !!process.env.DATABASE_URL;
+
   const requiredVars = [
-    'DB_HOST',
-    'DB_PORT',
-    'DB_NAME',
-    'DB_USER',
-    'DB_PASSWORD',
+    ...(hasDatabaseUrl ? [] : ['DB_HOST', 'DB_PORT', 'DB_NAME', 'DB_USER', 'DB_PASSWORD']),
     'JWT_SECRET',
     'JWT_REFRESH_SECRET',
     'SMTP_HOST',

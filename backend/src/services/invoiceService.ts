@@ -211,11 +211,11 @@ export class InvoiceService {
     orderItems.forEach((item: any) => {
       doc
         .text(item.product_name.substring(0, 30), 50, yPosition, { width: 140 })
-        .text(item.product_sku, 200, yPosition)
+        .text(item.sku || item.product_sku || '', 200, yPosition)
         .text(item.quantity.toString(), 300, yPosition, { width: 50, align: 'right' })
-        .text(`₹${item.unit_price.toFixed(2)}`, 350, yPosition, { width: 70, align: 'right' })
+        .text(`₹${Number(item.unit_price).toFixed(2)}`, 350, yPosition, { width: 70, align: 'right' })
         .text(`${item.gst_percentage}%`, 420, yPosition, { width: 50, align: 'right' })
-        .text(`₹${item.total_amount.toFixed(2)}`, 470, yPosition, {
+        .text(`₹${Number(item.total_price || item.total_amount).toFixed(2)}`, 470, yPosition, {
           width: 80,
           align: 'right',
         });
@@ -237,7 +237,7 @@ export class InvoiceService {
       .fontSize(10)
       .font('Helvetica')
       .text('Subtotal:', 350, yPosition)
-      .text(`₹${invoice.subtotal.toFixed(2)}`, 470, yPosition, { width: 80, align: 'right' });
+      .text(`₹${Number(invoice.subtotal).toFixed(2)}`, 470, yPosition, { width: 80, align: 'right' });
 
     yPosition += 20;
 
@@ -246,7 +246,7 @@ export class InvoiceService {
       // Inter-state: IGST
       doc
         .text('IGST:', 350, yPosition)
-        .text(`₹${invoice.igst_amount.toFixed(2)}`, 470, yPosition, {
+        .text(`₹${Number(invoice.igst_amount).toFixed(2)}`, 470, yPosition, {
           width: 80,
           align: 'right',
         });
@@ -255,7 +255,7 @@ export class InvoiceService {
       // Intra-state: CGST + SGST
       doc
         .text('CGST:', 350, yPosition)
-        .text(`₹${invoice.cgst_amount.toFixed(2)}`, 470, yPosition, {
+        .text(`₹${Number(invoice.cgst_amount).toFixed(2)}`, 470, yPosition, {
           width: 80,
           align: 'right',
         });
@@ -263,7 +263,7 @@ export class InvoiceService {
 
       doc
         .text('SGST:', 350, yPosition)
-        .text(`₹${invoice.sgst_amount.toFixed(2)}`, 470, yPosition, {
+        .text(`₹${Number(invoice.sgst_amount).toFixed(2)}`, 470, yPosition, {
           width: 80,
           align: 'right',
         });
@@ -273,7 +273,7 @@ export class InvoiceService {
     if (invoice.shipping_charges > 0) {
       doc
         .text('Shipping:', 350, yPosition)
-        .text(`₹${invoice.shipping_charges.toFixed(2)}`, 470, yPosition, {
+        .text(`₹${Number(invoice.shipping_charges).toFixed(2)}`, 470, yPosition, {
           width: 80,
           align: 'right',
         });
@@ -293,7 +293,7 @@ export class InvoiceService {
       .fontSize(12)
       .font('Helvetica-Bold')
       .text('Total Amount:', 350, yPosition)
-      .text(`₹${invoice.total_amount.toFixed(2)}`, 470, yPosition, {
+      .text(`₹${Number(invoice.total_amount).toFixed(2)}`, 470, yPosition, {
         width: 80,
         align: 'right',
       });

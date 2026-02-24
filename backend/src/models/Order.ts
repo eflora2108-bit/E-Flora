@@ -211,11 +211,11 @@ export class OrderItemModel {
 
     const sql = `
       INSERT INTO order_items (
-        order_id, product_id, supplier_id, product_name, product_sku,
-        quantity, unit_price, gst_percentage, gst_amount, total_amount
+        order_id, product_id, supplier_id, product_name, sku,
+        quantity, unit_price, gst_percentage, gst_amount, total_price
       )
       VALUES ${placeholders.join(', ')}
-      RETURNING *
+      RETURNING *, sku as product_sku, total_price as total_amount
     `;
 
     const result = await query(sql, values);
@@ -225,7 +225,8 @@ export class OrderItemModel {
   // Get order items by order ID
   static async getByOrderId(orderId: string): Promise<OrderItem[]> {
     const sql = `
-      SELECT * FROM order_items
+      SELECT *, sku as product_sku, total_price as total_amount
+      FROM order_items
       WHERE order_id = $1
       ORDER BY created_at ASC
     `;
@@ -240,7 +241,8 @@ export class OrderItemModel {
     offset: number = 0
   ): Promise<any[]> {
     const sql = `
-      SELECT oi.*, o.order_number, o.status as order_status, o.created_at as order_date
+      SELECT oi.*, oi.sku as product_sku, oi.total_price as total_amount,
+        o.order_number, o.status as order_status, o.created_at as order_date
       FROM order_items oi
       INNER JOIN orders o ON oi.order_id = o.id
       WHERE oi.supplier_id = $1

@@ -9,11 +9,12 @@ import { useCart } from '../../contexts/CartContext';
 import { Heart } from 'lucide-react';
 import { wishlistService } from '../../services/wishlistService';
 import { toast } from 'react-hot-toast';
+import { LoadingSpinner } from '../../components/ui/LoadingSpinner';
 
 export const ProductDetailPage = () => {
   const { slug } = useParams<{ slug: string }>();
   const navigate = useNavigate();
-  const { user, isAuthenticated } = useAuth();
+  const { isAuthenticated } = useAuth();
   const [product, setProduct] = useState<Product | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
@@ -103,32 +104,20 @@ export const ProductDetailPage = () => {
   };
 
   if (loading) {
-    return (
-      <div style={{ minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-        <p style={{ color: '#666', fontSize: '1.2rem' }}>Loading product...</p>
-      </div>
-    );
+    return <LoadingSpinner fullPage text="Loading product..." />;
   }
 
   if (error || !product) {
     return (
-      <div style={{ minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-        <div style={{ textAlign: 'center' }}>
-          <div style={{ fontSize: '3rem', marginBottom: '1rem' }}>⚠️</div>
-          <p style={{ color: '#666', fontSize: '1.2rem', marginBottom: '1rem' }}>
+      <div className="min-h-screen flex items-center justify-center bg-gray-50">
+        <div className="text-center animate-fade-in">
+          <div className="text-6xl mb-4">⚠️</div>
+          <p className="text-gray-500 text-lg mb-4">
             {error || 'Product not found'}
           </p>
           <button
             onClick={() => navigate('/products')}
-            style={{
-              padding: '0.75rem 1.5rem',
-              background: '#667eea',
-              color: 'white',
-              border: 'none',
-              borderRadius: '6px',
-              cursor: 'pointer',
-              fontWeight: '600',
-            }}
+            className="btn-primary"
           >
             Back to Products
           </button>
@@ -141,63 +130,54 @@ export const ProductDetailPage = () => {
   const hasImages = images.length > 0;
 
   return (
-    <div style={{ minHeight: '100vh', background: '#f5f5f5' }}>
+    <div className="min-h-screen bg-gray-50">
       {/* Breadcrumb */}
-      <div style={{ background: 'white', borderBottom: '1px solid #e0e0e0', padding: '1rem 0' }}>
-        <div style={{ maxWidth: '1200px', margin: '0 auto', padding: '0 2rem' }}>
-          <div style={{ fontSize: '0.9rem', color: '#666' }}>
-            <span onClick={() => navigate('/')} style={{ cursor: 'pointer', color: '#667eea' }}>
+      <div className="bg-white border-b border-gray-200 py-4">
+        <div className="max-w-7xl mx-auto px-8">
+          <div className="text-sm text-gray-500 flex items-center gap-1">
+            <span onClick={() => navigate('/')} className="cursor-pointer text-primary-600 hover:text-primary-700 transition-colors">
               Home
             </span>
-            {' / '}
-            <span onClick={() => navigate('/products')} style={{ cursor: 'pointer', color: '#667eea' }}>
+            <span>/</span>
+            <span onClick={() => navigate('/products')} className="cursor-pointer text-primary-600 hover:text-primary-700 transition-colors">
               Products
             </span>
-            {' / '}
-            <span>{product.name}</span>
+            <span>/</span>
+            <span className="text-gray-700">{product.name}</span>
           </div>
         </div>
       </div>
 
-      <div style={{ maxWidth: '1200px', margin: '0 auto', padding: '2rem' }}>
-        <div style={{ background: 'white', borderRadius: '12px', padding: '2rem' }}>
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '3rem' }}>
+      <div className="max-w-7xl mx-auto p-8 animate-fade-in-up">
+        <div className="bg-white rounded-xl p-8 shadow-sm">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-12">
             {/* Images Section */}
             <div>
               {/* Main Image */}
               <div
-                style={{
-                  height: '400px',
-                  background: hasImages
-                    ? `url(http://localhost:5000${images[selectedImage]}) center/contain no-repeat`
-                    : 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
-                  borderRadius: '12px',
-                  marginBottom: '1rem',
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  color: 'white',
-                  fontSize: '5rem',
-                }}
+                className="h-96 rounded-xl mb-4 flex items-center justify-center text-white text-7xl bg-contain bg-center bg-no-repeat"
+                style={
+                  hasImages
+                    ? { backgroundImage: `url(http://localhost:5000${images[selectedImage]})`, backgroundColor: '#f9fafb' }
+                    : { background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)' }
+                }
               >
                 {!hasImages && '🌱'}
               </div>
 
               {/* Thumbnail Gallery */}
               {hasImages && images.length > 1 && (
-                <div style={{ display: 'flex', gap: '0.5rem', flexWrap: 'wrap' }}>
+                <div className="flex gap-2 flex-wrap">
                   {images.map((image, index) => (
                     <div
                       key={index}
                       onClick={() => setSelectedImage(index)}
-                      style={{
-                        width: '80px',
-                        height: '80px',
-                        background: `url(http://localhost:5000${image}) center/cover`,
-                        borderRadius: '8px',
-                        cursor: 'pointer',
-                        border: selectedImage === index ? '3px solid #667eea' : '1px solid #e0e0e0',
-                      }}
+                      className={`w-20 h-20 rounded-lg cursor-pointer bg-cover bg-center transition-all ${
+                        selectedImage === index
+                          ? 'border-[3px] border-primary-500 shadow-md'
+                          : 'border border-gray-200 hover:border-primary-300'
+                      }`}
+                      style={{ backgroundImage: `url(http://localhost:5000${image})` }}
                     />
                   ))}
                 </div>
@@ -206,43 +186,40 @@ export const ProductDetailPage = () => {
 
             {/* Product Info Section */}
             <div>
-              <div style={{ marginBottom: '0.5rem', color: '#667eea', fontWeight: '600' }}>
+              <div className="mb-2 text-primary-600 font-semibold text-sm">
                 {product.category?.name}
               </div>
 
-              <h1 style={{ marginBottom: '1rem', fontSize: '2rem' }}>{product.name}</h1>
+              <h1 className="mb-4 text-3xl font-bold text-gray-900">{product.name}</h1>
 
-              <div style={{ marginBottom: '1.5rem' }}>
-                <div style={{ display: 'flex', alignItems: 'baseline', gap: '1rem', marginBottom: '0.5rem' }}>
-                  <div style={{ fontSize: '2.5rem', fontWeight: '700', color: '#667eea' }}>
+              <div className="mb-6">
+                <div className="flex items-baseline gap-4 mb-2">
+                  <div className="text-4xl font-bold text-primary-600">
                     ₹{Number(product.price).toFixed(2)}
                   </div>
                   {product.mrp && Number(product.mrp) > Number(product.price) && (
                     <>
-                      <div style={{ fontSize: '1.2rem', color: '#999', textDecoration: 'line-through' }}>
+                      <div className="text-lg text-gray-400 line-through">
                         ₹{Number(product.mrp).toFixed(2)}
                       </div>
-                      <div style={{ fontSize: '1rem', fontWeight: '600', color: '#10b981' }}>
+                      <div className="text-base font-semibold text-emerald-500">
                         {Math.round(((Number(product.mrp) - Number(product.price)) / Number(product.mrp)) * 100)}% OFF
                       </div>
                     </>
                   )}
                 </div>
-                <div style={{ fontSize: '0.9rem', color: '#666' }}>
-                  (Inclusive of all taxes • GST: {product.gst_percentage}%)
+                <div className="text-sm text-gray-500">
+                  (Inclusive of all taxes &bull; GST: {product.gst_percentage}%)
                 </div>
               </div>
 
               {/* Stock Status */}
               <div
-                style={{
-                  padding: '0.75rem',
-                  background: product.stock_quantity > 0 ? '#d1fae5' : '#fee',
-                  color: product.stock_quantity > 0 ? '#065f46' : '#c33',
-                  borderRadius: '8px',
-                  marginBottom: '1.5rem',
-                  fontWeight: '600',
-                }}
+                className={`p-3 rounded-lg mb-6 font-semibold ${
+                  product.stock_quantity > 0
+                    ? 'bg-emerald-50 text-emerald-800'
+                    : 'bg-red-50 text-red-700'
+                }`}
               >
                 {product.stock_quantity > 0
                   ? `✓ In Stock (${product.stock_quantity} available)`
@@ -251,20 +228,12 @@ export const ProductDetailPage = () => {
 
               {/* Quantity Selector */}
               {product.stock_quantity > 0 && (
-                <div style={{ marginBottom: '1.5rem' }}>
-                  <label style={{ display: 'block', marginBottom: '0.5rem', fontWeight: '600' }}>Quantity</label>
-                  <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                <div className="mb-6">
+                  <label className="block mb-2 font-semibold text-gray-700">Quantity</label>
+                  <div className="flex items-center gap-2">
                     <button
                       onClick={() => setQuantity((q) => Math.max(product.min_order_quantity, q - 1))}
-                      style={{
-                        width: '40px',
-                        height: '40px',
-                        background: '#f0f0f0',
-                        border: 'none',
-                        borderRadius: '6px',
-                        cursor: 'pointer',
-                        fontSize: '1.2rem',
-                      }}
+                      className="w-10 h-10 bg-gray-100 border-none rounded-lg cursor-pointer text-xl font-medium hover:bg-gray-200 transition-colors"
                     >
                       -
                     </button>
@@ -281,30 +250,15 @@ export const ProductDetailPage = () => {
                       }
                       min={product.min_order_quantity}
                       max={product.stock_quantity}
-                      style={{
-                        width: '80px',
-                        padding: '0.5rem',
-                        textAlign: 'center',
-                        border: '1px solid #ddd',
-                        borderRadius: '6px',
-                        fontSize: '1.1rem',
-                      }}
+                      className="w-20 py-2 text-center border border-gray-300 rounded-lg text-lg input-base"
                     />
                     <button
                       onClick={() => setQuantity((q) => Math.min(product.stock_quantity, q + 1))}
-                      style={{
-                        width: '40px',
-                        height: '40px',
-                        background: '#f0f0f0',
-                        border: 'none',
-                        borderRadius: '6px',
-                        cursor: 'pointer',
-                        fontSize: '1.2rem',
-                      }}
+                      className="w-10 h-10 bg-gray-100 border-none rounded-lg cursor-pointer text-xl font-medium hover:bg-gray-200 transition-colors"
                     >
                       +
                     </button>
-                    <span style={{ marginLeft: '1rem', color: '#666', fontSize: '0.9rem' }}>
+                    <span className="ml-4 text-gray-500 text-sm">
                       Min order: {product.min_order_quantity}
                     </span>
                   </div>
@@ -312,56 +266,43 @@ export const ProductDetailPage = () => {
               )}
 
               {/* Action Buttons */}
-              <div style={{ display: 'flex', gap: '1rem', marginBottom: '2rem' }}>
+              <div className="flex gap-4 mb-8">
                 <button
                   onClick={handleAddToCart}
                   disabled={product.stock_quantity === 0}
-                  style={{
-                    flex: 1,
-                    padding: '1rem',
-                    background: product.stock_quantity === 0 ? '#ccc' : '#667eea',
-                    color: 'white',
-                    border: 'none',
-                    borderRadius: '8px',
-                    fontWeight: '700',
-                    fontSize: '1.1rem',
-                    cursor: product.stock_quantity === 0 ? 'not-allowed' : 'pointer',
-                  }}
+                  className={`flex-1 py-3 rounded-lg font-bold text-lg text-white transition-all ${
+                    product.stock_quantity === 0
+                      ? 'bg-gray-300 cursor-not-allowed'
+                      : 'bg-primary-600 hover:bg-primary-700 hover:shadow-lg cursor-pointer'
+                  }`}
                 >
                   Add to Cart
                 </button>
                 <button
                   onClick={handleToggleWishlist}
                   disabled={wishlistLoading}
-                  style={{
-                    padding: '1rem',
-                    background: isInWishlist ? '#fee' : 'white',
-                    color: isInWishlist ? '#c33' : '#667eea',
-                    border: `2px solid ${isInWishlist ? '#c33' : '#667eea'}`,
-                    borderRadius: '8px',
-                    fontWeight: '600',
-                    cursor: 'pointer',
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                  }}
+                  className={`p-3 rounded-lg font-semibold cursor-pointer flex items-center justify-center transition-all border-2 ${
+                    isInWishlist
+                      ? 'bg-red-50 text-red-500 border-red-500 hover:bg-red-100'
+                      : 'bg-white text-primary-600 border-primary-500 hover:bg-primary-50'
+                  } disabled:opacity-50`}
                 >
-                  <Heart style={{ width: '24px', height: '24px', fill: isInWishlist ? '#c33' : 'none' }} />
+                  <Heart className="w-6 h-6" fill={isInWishlist ? 'currentColor' : 'none'} />
                 </button>
               </div>
 
               {/* Product Details */}
-              <div style={{ borderTop: '1px solid #e0e0e0', paddingTop: '1.5rem' }}>
-                <h3 style={{ marginBottom: '1rem' }}>Product Details</h3>
+              <div className="border-t border-gray-200 pt-6">
+                <h3 className="mb-4 font-semibold text-gray-900">Product Details</h3>
 
-                <div style={{ display: 'grid', gap: '0.75rem', fontSize: '0.95rem' }}>
-                  <div style={{ display: 'flex' }}>
-                    <span style={{ fontWeight: '600', width: '120px' }}>SKU:</span>
-                    <span style={{ color: '#666' }}>{product.sku}</span>
+                <div className="grid gap-3 text-sm">
+                  <div className="flex">
+                    <span className="font-semibold w-32 text-gray-700">SKU:</span>
+                    <span className="text-gray-500">{product.sku}</span>
                   </div>
-                  <div style={{ display: 'flex' }}>
-                    <span style={{ fontWeight: '600', width: '120px' }}>Supplier:</span>
-                    <span style={{ color: '#666' }}>{product.supplier?.business_name || 'N/A'}</span>
+                  <div className="flex">
+                    <span className="font-semibold w-32 text-gray-700">Supplier:</span>
+                    <span className="text-gray-500">{product.supplier?.business_name || 'N/A'}</span>
                   </div>
                 </div>
               </div>
@@ -369,26 +310,18 @@ export const ProductDetailPage = () => {
           </div>
 
           {/* Description & Care Instructions */}
-          <div style={{ marginTop: '3rem', borderTop: '1px solid #e0e0e0', paddingTop: '2rem' }}>
+          <div className="mt-12 border-t border-gray-200 pt-8">
             {product.description && (
-              <div style={{ marginBottom: '2rem' }}>
-                <h2 style={{ marginBottom: '1rem' }}>Description</h2>
-                <div style={{ lineHeight: '1.8', color: '#444' }}>{product.description}</div>
+              <div className="mb-8">
+                <h2 className="mb-4 text-xl font-bold text-gray-900">Description</h2>
+                <div className="leading-relaxed text-gray-600">{product.description}</div>
               </div>
             )}
 
             {product.care_instructions && (
               <div>
-                <h2 style={{ marginBottom: '1rem' }}>🌱 Care Instructions</h2>
-                <div
-                  style={{
-                    padding: '1.5rem',
-                    background: '#f0f8ff',
-                    borderRadius: '8px',
-                    lineHeight: '1.8',
-                    color: '#444',
-                  }}
-                >
+                <h2 className="mb-4 text-xl font-bold text-gray-900">Care Instructions</h2>
+                <div className="p-6 bg-blue-50 rounded-lg leading-relaxed text-gray-600">
                   {product.care_instructions}
                 </div>
               </div>
@@ -396,21 +329,13 @@ export const ProductDetailPage = () => {
           </div>
 
           {/* Reviews Section */}
-          <div style={{ marginTop: '3rem', borderTop: '1px solid #e0e0e0', paddingTop: '2rem' }}>
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '2rem' }}>
-              <h2>Customer Reviews</h2>
+          <div className="mt-12 border-t border-gray-200 pt-8">
+            <div className="flex justify-between items-center mb-8">
+              <h2 className="text-xl font-bold text-gray-900">Customer Reviews</h2>
               {isAuthenticated && (
                 <button
                   onClick={handleWriteReview}
-                  style={{
-                    padding: '0.75rem 1.5rem',
-                    background: '#667eea',
-                    color: 'white',
-                    border: 'none',
-                    borderRadius: '8px',
-                    fontWeight: '600',
-                    cursor: 'pointer',
-                  }}
+                  className="btn-primary"
                 >
                   Write a Review
                 </button>

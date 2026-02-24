@@ -1,5 +1,5 @@
-import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
-import { Cart, CartItem } from '../types';
+import { createContext, useContext, useState, useEffect, ReactNode } from 'react';
+import { Cart } from '../types';
 import { cartService } from '../services/cartService';
 import { useAuth } from './AuthContext';
 
@@ -18,7 +18,7 @@ interface CartContextType {
 const CartContext = createContext<CartContextType | undefined>(undefined);
 
 export const CartProvider = ({ children }: { children: ReactNode }) => {
-  const { isAuthenticated, user } = useAuth();
+  const { isAuthenticated } = useAuth();
   const [cart, setCart] = useState<Cart | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');

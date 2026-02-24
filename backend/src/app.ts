@@ -29,9 +29,22 @@ const app: Application = express();
 // Security middleware
 app.use(helmet());
 
-// CORS configuration
+// CORS configuration - support multiple origins for production
+const allowedOrigins = [
+  env.FRONTEND_URL,
+  'http://localhost:3000',
+  'http://localhost:5173',
+].filter(Boolean);
+
 const corsOptions = {
-  origin: env.FRONTEND_URL,
+  origin: (origin: string | undefined, callback: (err: Error | null, allow?: boolean) => void) => {
+    // Allow requests with no origin (mobile apps, curl, etc.)
+    if (!origin || allowedOrigins.some(allowed => origin.startsWith(allowed))) {
+      callback(null, true);
+    } else {
+      callback(null, false);
+    }
+  },
   credentials: true,
   optionsSuccessStatus: 200,
 };

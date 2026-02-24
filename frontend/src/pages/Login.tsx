@@ -1,6 +1,9 @@
 import { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, Link } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
+import { motion } from 'framer-motion';
+import { Mail, Lock, Leaf, ArrowRight } from 'lucide-react';
+import { ErrorAlert } from '../components/ui/ErrorAlert';
 
 export const LoginPage = () => {
   const { login } = useAuth();
@@ -26,104 +29,105 @@ export const LoginPage = () => {
   };
 
   return (
-    <div style={{
-      minHeight: '100vh',
-      display: 'flex',
-      alignItems: 'center',
-      justifyContent: 'center',
-      background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
-      padding: '2rem'
-    }}>
-      <div style={{
-        background: 'white',
-        padding: '2.5rem',
-        borderRadius: '12px',
-        boxShadow: '0 10px 25px rgba(0,0,0,0.1)',
-        width: '100%',
-        maxWidth: '400px'
-      }}>
-        <h1 style={{ marginBottom: '0.5rem', color: '#333', fontSize: '2rem' }}>
-          🌱 eFlora
-        </h1>
-        <h2 style={{ marginBottom: '2rem', color: '#667eea', fontSize: '1.5rem' }}>
-          Login
-        </h2>
-
-        {error && (
-          <div style={{
-            padding: '0.75rem',
-            marginBottom: '1rem',
-            background: '#fee',
-            color: '#c33',
-            borderRadius: '6px',
-            fontSize: '0.9rem'
-          }}>
-            {error}
-          </div>
-        )}
-
-        <form onSubmit={handleSubmit}>
-          <div style={{ marginBottom: '1rem' }}>
-            <label style={{ display: 'block', marginBottom: '0.5rem', fontWeight: '500', color: '#333' }}>
-              Email
-            </label>
-            <input
-              type="email"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              required
-              style={{
-                width: '100%',
-                padding: '0.75rem',
-                border: '1px solid #ddd',
-                borderRadius: '6px',
-                fontSize: '1rem'
-              }}
-            />
-          </div>
-
-          <div style={{ marginBottom: '1.5rem' }}>
-            <label style={{ display: 'block', marginBottom: '0.5rem', fontWeight: '500', color: '#333' }}>
-              Password
-            </label>
-            <input
-              type="password"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              required
-              style={{
-                width: '100%',
-                padding: '0.75rem',
-                border: '1px solid #ddd',
-                borderRadius: '6px',
-                fontSize: '1rem'
-              }}
-            />
-          </div>
-
-          <button
-            type="submit"
-            disabled={loading}
-            style={{
-              width: '100%',
-              padding: '0.875rem',
-              background: loading ? '#ccc' : '#667eea',
-              color: 'white',
-              border: 'none',
-              borderRadius: '6px',
-              fontSize: '1rem',
-              fontWeight: '600',
-              cursor: loading ? 'not-allowed' : 'pointer',
-              transition: 'background 0.2s'
-            }}
+    <div className="min-h-screen flex">
+      {/* Left Panel - Decorative */}
+      <div className="hidden lg:flex lg:w-1/2 bg-gradient-to-br from-primary-600 via-emerald-500 to-teal-400 relative overflow-hidden">
+        <div className="absolute inset-0 flex flex-col items-center justify-center p-12 text-white">
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.6 }}
+            className="text-center"
           >
-            {loading ? 'Logging in...' : 'Login'}
-          </button>
-        </form>
+            <div className="text-8xl mb-6 animate-float">🌿</div>
+            <h2 className="text-4xl font-bold mb-4">Welcome to eFlora</h2>
+            <p className="text-xl text-white/80 max-w-md">
+              India's Premier Plant Marketplace. Discover thousands of plants from verified nurseries.
+            </p>
+          </motion.div>
 
-        <div style={{ marginTop: '1.5rem', textAlign: 'center', fontSize: '0.9rem', color: '#666' }}>
-          Don't have an account? <a href="/register" style={{ color: '#667eea', textDecoration: 'none', fontWeight: '600' }}>Register</a>
+          {/* Decorative elements */}
+          <div className="absolute top-16 left-12 text-6xl opacity-20 animate-float stagger-2">🌱</div>
+          <div className="absolute bottom-20 right-16 text-5xl opacity-20 animate-float stagger-3">🍃</div>
+          <div className="absolute top-1/3 right-12 text-4xl opacity-20 animate-float stagger-4">🌸</div>
         </div>
+      </div>
+
+      {/* Right Panel - Form */}
+      <div className="w-full lg:w-1/2 flex items-center justify-center p-8 bg-gray-50">
+        <motion.div
+          initial={{ opacity: 0, x: 20 }}
+          animate={{ opacity: 1, x: 0 }}
+          transition={{ duration: 0.5 }}
+          className="w-full max-w-md"
+        >
+          {/* Logo for mobile */}
+          <div className="flex items-center gap-2 mb-8">
+            <Leaf className="w-8 h-8 text-primary-600" />
+            <span className="text-2xl font-bold text-gray-900">eFlora</span>
+          </div>
+
+          <h1 className="text-3xl font-bold text-gray-900 mb-2">Welcome back</h1>
+          <p className="text-gray-500 mb-8">Sign in to your account to continue</p>
+
+          {error && <div className="mb-6"><ErrorAlert message={error} onDismiss={() => setError('')} /></div>}
+
+          <form onSubmit={handleSubmit} className="space-y-5">
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1.5">Email</label>
+              <div className="relative">
+                <Mail className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
+                <input
+                  type="email"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  required
+                  placeholder="you@example.com"
+                  className="input-base pl-11"
+                />
+              </div>
+            </div>
+
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1.5">Password</label>
+              <div className="relative">
+                <Lock className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
+                <input
+                  type="password"
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  required
+                  placeholder="Enter your password"
+                  className="input-base pl-11"
+                />
+              </div>
+            </div>
+
+            <button
+              type="submit"
+              disabled={loading}
+              className="btn-primary w-full py-3 text-base"
+            >
+              {loading ? (
+                <span className="flex items-center justify-center gap-2">
+                  <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                  Signing in...
+                </span>
+              ) : (
+                <span className="flex items-center justify-center gap-2">
+                  Sign In <ArrowRight className="w-5 h-5" />
+                </span>
+              )}
+            </button>
+          </form>
+
+          <p className="mt-8 text-center text-sm text-gray-500">
+            Don't have an account?{' '}
+            <Link to="/register" className="text-primary-600 font-semibold hover:text-primary-700">
+              Create one
+            </Link>
+          </p>
+        </motion.div>
       </div>
     </div>
   );

@@ -1,6 +1,12 @@
 import { useState, useEffect } from 'react';
 import { productService } from '../../services/productService';
 import { Product } from '../../types';
+import { AdminLayout } from '../../components/layout/AdminLayout';
+import { LoadingSpinner } from '../../components/ui/LoadingSpinner';
+import { ErrorAlert } from '../../components/ui/ErrorAlert';
+import { EmptyState } from '../../components/ui/EmptyState';
+import { Modal } from '../../components/ui/Modal';
+import { CheckCircle, XCircle } from 'lucide-react';
 
 export const ProductModerationPage = () => {
   const [products, setProducts] = useState<Product[]>([]);
@@ -68,318 +74,214 @@ export const ProductModerationPage = () => {
   };
 
   return (
-    <div style={{ minHeight: '100vh', background: '#f5f5f5', padding: '2rem' }}>
-      <div style={{ maxWidth: '1400px', margin: '0 auto' }}>
-        <div style={{ marginBottom: '2rem' }}>
-          <h1 style={{ marginBottom: '0.5rem' }}>🔍 Product Moderation</h1>
-          <p style={{ color: '#666' }}>Review and approve product listings</p>
-        </div>
+    <AdminLayout title="Product Moderation" subtitle="Review and approve product listings">
+      {error && <ErrorAlert message={error} onDismiss={() => setError('')} />}
 
-        {error && (
-          <div style={{ padding: '0.75rem', marginBottom: '1rem', background: '#fee', color: '#c33', borderRadius: '6px' }}>
-            {error}
-          </div>
-        )}
+      <div className="grid grid-cols-1 lg:grid-cols-[350px_1fr] gap-6 mt-4">
+        {/* Products List */}
+        <div className="bg-white rounded-2xl p-6 border border-gray-100 shadow-sm h-fit">
+          <h2 className="text-lg font-semibold text-gray-900 mb-4">
+            Pending Products ({products.length})
+          </h2>
 
-        <div style={{ display: 'grid', gridTemplateColumns: '350px 1fr', gap: '1.5rem' }}>
-          {/* Products List */}
-          <div style={{ background: 'white', borderRadius: '12px', padding: '1.5rem', height: 'fit-content' }}>
-            <h2 style={{ marginBottom: '1rem', fontSize: '1.1rem' }}>
-              Pending Products ({products.length})
-            </h2>
-
-            {loading && products.length === 0 ? (
-              <p style={{ textAlign: 'center', color: '#666', padding: '2rem 0' }}>Loading...</p>
-            ) : products.length === 0 ? (
-              <div style={{ textAlign: 'center', padding: '2rem 0' }}>
-                <div style={{ fontSize: '3rem', marginBottom: '0.5rem' }}>✅</div>
-                <p style={{ color: '#666' }}>No pending products</p>
-              </div>
-            ) : (
-              <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
-                {products.map((product) => (
-                  <div
-                    key={product.id}
-                    onClick={() => setSelectedProduct(product)}
-                    style={{
-                      padding: '1rem',
-                      border: selectedProduct?.id === product.id ? '2px solid #667eea' : '1px solid #e0e0e0',
-                      borderRadius: '8px',
-                      cursor: 'pointer',
-                      background: selectedProduct?.id === product.id ? '#f0f4ff' : 'white',
-                      transition: 'all 0.2s',
-                    }}
-                  >
-                    <div style={{ fontWeight: '600', marginBottom: '0.25rem' }}>{product.name}</div>
-                    <div style={{ fontSize: '0.85rem', color: '#666', marginBottom: '0.25rem' }}>
-                      SKU: {product.sku}
-                    </div>
-                    <div style={{ fontSize: '0.85rem', color: '#666' }}>
-                      Supplier: {product.supplier?.business_name || 'Unknown'}
-                    </div>
-                    <div style={{ fontSize: '0.85rem', fontWeight: '600', marginTop: '0.5rem', color: '#667eea' }}>
-                      ₹{Number(product.price).toFixed(2)}
-                    </div>
+          {loading && products.length === 0 ? (
+            <LoadingSpinner text="Loading..." size="sm" />
+          ) : products.length === 0 ? (
+            <EmptyState
+              icon={<CheckCircle className="w-12 h-12 text-emerald-400" />}
+              title="No pending products"
+              description="All products have been reviewed"
+            />
+          ) : (
+            <div className="flex flex-col gap-3">
+              {products.map((product) => (
+                <div
+                  key={product.id}
+                  onClick={() => setSelectedProduct(product)}
+                  className={`p-4 rounded-xl cursor-pointer border-2 transition-all duration-200 ${
+                    selectedProduct?.id === product.id
+                      ? 'border-primary-500 bg-primary-50'
+                      : 'border-gray-100 bg-white hover:border-gray-300'
+                  }`}
+                >
+                  <div className="font-semibold text-gray-900 mb-1">{product.name}</div>
+                  <div className="text-sm text-gray-500 mb-1">SKU: {product.sku}</div>
+                  <div className="text-sm text-gray-500">
+                    Supplier: {product.supplier?.business_name || 'Unknown'}
                   </div>
-                ))}
-              </div>
-            )}
-          </div>
-
-          {/* Product Details */}
-          <div style={{ background: 'white', borderRadius: '12px', padding: '2rem' }}>
-            {!selectedProduct ? (
-              <div style={{ textAlign: 'center', padding: '4rem 0', color: '#666' }}>
-                <div style={{ fontSize: '3rem', marginBottom: '0.5rem' }}>📦</div>
-                <p>Select a product to review</p>
-              </div>
-            ) : (
-              <>
-                <div style={{ marginBottom: '2rem' }}>
-                  <h2 style={{ marginBottom: '1rem' }}>{selectedProduct.name}</h2>
-
-                  {/* Product Images */}
-                  {selectedProduct.images && selectedProduct.images.length > 0 && (
-                    <div style={{ display: 'flex', gap: '0.5rem', marginBottom: '1.5rem', flexWrap: 'wrap' }}>
-                      {selectedProduct.images.map((image, index) => (
-                        <img
-                          key={index}
-                          src={`http://localhost:5000${image}`}
-                          alt={`Product ${index + 1}`}
-                          style={{
-                            width: '150px',
-                            height: '150px',
-                            objectFit: 'cover',
-                            borderRadius: '8px',
-                            border: '1px solid #e0e0e0',
-                          }}
-                        />
-                      ))}
-                    </div>
-                  )}
-
-                  <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem', marginBottom: '1.5rem' }}>
-                    <div>
-                      <label style={{ display: 'block', fontSize: '0.85rem', color: '#666', marginBottom: '0.25rem' }}>
-                        SKU
-                      </label>
-                      <div style={{ fontWeight: '500' }}>{selectedProduct.sku}</div>
-                    </div>
-
-                    <div>
-                      <label style={{ display: 'block', fontSize: '0.85rem', color: '#666', marginBottom: '0.25rem' }}>
-                        Category
-                      </label>
-                      <div style={{ fontWeight: '500' }}>{selectedProduct.category?.name || 'N/A'}</div>
-                    </div>
-
-                    <div>
-                      <label style={{ display: 'block', fontSize: '0.85rem', color: '#666', marginBottom: '0.25rem' }}>
-                        Price
-                      </label>
-                      <div style={{ fontWeight: '600', fontSize: '1.1rem', color: '#667eea' }}>
-                        ₹{Number(selectedProduct.price).toFixed(2)}
-                      </div>
-                    </div>
-
-                    <div>
-                      <label style={{ display: 'block', fontSize: '0.85rem', color: '#666', marginBottom: '0.25rem' }}>
-                        MRP
-                      </label>
-                      <div style={{ fontWeight: '500' }}>
-                        {selectedProduct.mrp ? `₹${Number(selectedProduct.mrp).toFixed(2)}` : 'N/A'}
-                      </div>
-                    </div>
-
-                    <div>
-                      <label style={{ display: 'block', fontSize: '0.85rem', color: '#666', marginBottom: '0.25rem' }}>
-                        GST
-                      </label>
-                      <div style={{ fontWeight: '500' }}>{selectedProduct.gst_percentage}%</div>
-                    </div>
-
-                    <div>
-                      <label style={{ display: 'block', fontSize: '0.85rem', color: '#666', marginBottom: '0.25rem' }}>
-                        Stock Quantity
-                      </label>
-                      <div style={{ fontWeight: '500' }}>{selectedProduct.stock_quantity}</div>
-                    </div>
-
-                    <div>
-                      <label style={{ display: 'block', fontSize: '0.85rem', color: '#666', marginBottom: '0.25rem' }}>
-                        Min Order Qty
-                      </label>
-                      <div style={{ fontWeight: '500' }}>{selectedProduct.min_order_quantity}</div>
-                    </div>
-                  </div>
-
-                  {selectedProduct.description && (
-                    <div style={{ marginBottom: '1.5rem' }}>
-                      <label style={{ display: 'block', fontSize: '0.85rem', color: '#666', marginBottom: '0.5rem' }}>
-                        Description
-                      </label>
-                      <div style={{ padding: '1rem', background: '#f9f9f9', borderRadius: '6px', lineHeight: '1.6' }}>
-                        {selectedProduct.description}
-                      </div>
-                    </div>
-                  )}
-
-                  {selectedProduct.care_instructions && (
-                    <div style={{ marginBottom: '1.5rem' }}>
-                      <label style={{ display: 'block', fontSize: '0.85rem', color: '#666', marginBottom: '0.5rem' }}>
-                        Care Instructions
-                      </label>
-                      <div style={{ padding: '1rem', background: '#f0f8ff', borderRadius: '6px', lineHeight: '1.6' }}>
-                        {selectedProduct.care_instructions}
-                      </div>
-                    </div>
-                  )}
-
-                  <div style={{ padding: '1rem', background: '#f9f9f9', borderRadius: '8px' }}>
-                    <div style={{ fontSize: '0.9rem', fontWeight: '600', marginBottom: '0.5rem' }}>Supplier Information</div>
-                    <div style={{ fontSize: '0.9rem', color: '#666' }}>
-                      Business: {selectedProduct.supplier?.business_name || 'N/A'}
-                    </div>
-                    <div style={{ fontSize: '0.9rem', color: '#666' }}>
-                      Email: {selectedProduct.supplier?.email || 'N/A'}
-                    </div>
-                    {selectedProduct.supplier?.gstin && (
-                      <div style={{ fontSize: '0.9rem', color: '#666' }}>
-                        GSTIN: {selectedProduct.supplier.gstin}
-                      </div>
-                    )}
+                  <div className="text-sm font-semibold text-primary-700 mt-2">
+                    ₹{Number(product.price).toFixed(2)}
                   </div>
                 </div>
-
-                {/* Action Buttons */}
-                <div style={{ display: 'flex', gap: '1rem' }}>
-                  <button
-                    onClick={handleApprove}
-                    disabled={loading}
-                    style={{
-                      flex: 1,
-                      padding: '1rem',
-                      background: loading ? '#ccc' : '#10b981',
-                      color: 'white',
-                      border: 'none',
-                      borderRadius: '8px',
-                      fontWeight: '600',
-                      cursor: loading ? 'not-allowed' : 'pointer',
-                      fontSize: '1rem',
-                    }}
-                  >
-                    ✓ Approve Product
-                  </button>
-                  <button
-                    onClick={() => setShowRejectModal(true)}
-                    disabled={loading}
-                    style={{
-                      flex: 1,
-                      padding: '1rem',
-                      background: loading ? '#ccc' : '#ef4444',
-                      color: 'white',
-                      border: 'none',
-                      borderRadius: '8px',
-                      fontWeight: '600',
-                      cursor: loading ? 'not-allowed' : 'pointer',
-                      fontSize: '1rem',
-                    }}
-                  >
-                    ✕ Reject Product
-                  </button>
-                </div>
-              </>
-            )}
-          </div>
-        </div>
-
-        {/* Rejection Modal */}
-        {showRejectModal && (
-          <div
-            style={{
-              position: 'fixed',
-              top: 0,
-              left: 0,
-              right: 0,
-              bottom: 0,
-              background: 'rgba(0,0,0,0.5)',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              zIndex: 1000,
-            }}
-            onClick={() => setShowRejectModal(false)}
-          >
-            <div
-              style={{
-                background: 'white',
-                borderRadius: '12px',
-                padding: '2rem',
-                maxWidth: '500px',
-                width: '90%',
-              }}
-              onClick={(e) => e.stopPropagation()}
-            >
-              <h2 style={{ marginBottom: '1rem' }}>Reject Product</h2>
-              <p style={{ color: '#666', marginBottom: '1rem' }}>
-                Please provide a reason for rejecting this product. This will be sent to the supplier.
-              </p>
-
-              <textarea
-                value={rejectionReason}
-                onChange={(e) => setRejectionReason(e.target.value)}
-                placeholder="Enter rejection reason..."
-                rows={4}
-                style={{
-                  width: '100%',
-                  padding: '0.75rem',
-                  border: '1px solid #ddd',
-                  borderRadius: '6px',
-                  fontFamily: 'inherit',
-                  marginBottom: '1rem',
-                }}
-              />
-
-              <div style={{ display: 'flex', gap: '0.75rem' }}>
-                <button
-                  onClick={() => {
-                    setShowRejectModal(false);
-                    setRejectionReason('');
-                  }}
-                  style={{
-                    flex: 1,
-                    padding: '0.75rem',
-                    background: 'transparent',
-                    color: '#666',
-                    border: '1px solid #ddd',
-                    borderRadius: '6px',
-                    fontWeight: '600',
-                    cursor: 'pointer',
-                  }}
-                >
-                  Cancel
-                </button>
-                <button
-                  onClick={handleReject}
-                  disabled={loading || !rejectionReason.trim()}
-                  style={{
-                    flex: 1,
-                    padding: '0.75rem',
-                    background: loading || !rejectionReason.trim() ? '#ccc' : '#ef4444',
-                    color: 'white',
-                    border: 'none',
-                    borderRadius: '6px',
-                    fontWeight: '600',
-                    cursor: loading || !rejectionReason.trim() ? 'not-allowed' : 'pointer',
-                  }}
-                >
-                  {loading ? 'Rejecting...' : 'Reject Product'}
-                </button>
-              </div>
+              ))}
             </div>
-          </div>
-        )}
+          )}
+        </div>
+
+        {/* Product Details */}
+        <div className="bg-white rounded-2xl p-6 lg:p-8 border border-gray-100 shadow-sm">
+          {!selectedProduct ? (
+            <EmptyState
+              icon={<span className="text-5xl">📦</span>}
+              title="Select a product to review"
+              description="Choose a product from the list to view its details"
+            />
+          ) : (
+            <>
+              <div className="mb-8">
+                <h2 className="text-xl font-bold text-gray-900 mb-4">{selectedProduct.name}</h2>
+
+                {/* Product Images */}
+                {selectedProduct.images && selectedProduct.images.length > 0 && (
+                  <div className="flex gap-2 mb-6 flex-wrap">
+                    {selectedProduct.images.map((image, index) => (
+                      <img
+                        key={index}
+                        src={`http://localhost:5000${image}`}
+                        alt={`Product ${index + 1}`}
+                        className="w-[150px] h-[150px] object-cover rounded-xl border border-gray-200"
+                      />
+                    ))}
+                  </div>
+                )}
+
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-6">
+                  <div>
+                    <label className="block text-sm text-gray-500 mb-1">SKU</label>
+                    <div className="font-medium text-gray-900">{selectedProduct.sku}</div>
+                  </div>
+                  <div>
+                    <label className="block text-sm text-gray-500 mb-1">Category</label>
+                    <div className="font-medium text-gray-900">
+                      {selectedProduct.category?.name || 'N/A'}
+                    </div>
+                  </div>
+                  <div>
+                    <label className="block text-sm text-gray-500 mb-1">Price</label>
+                    <div className="font-semibold text-lg text-primary-700">
+                      ₹{Number(selectedProduct.price).toFixed(2)}
+                    </div>
+                  </div>
+                  <div>
+                    <label className="block text-sm text-gray-500 mb-1">MRP</label>
+                    <div className="font-medium text-gray-900">
+                      {selectedProduct.mrp ? `₹${Number(selectedProduct.mrp).toFixed(2)}` : 'N/A'}
+                    </div>
+                  </div>
+                  <div>
+                    <label className="block text-sm text-gray-500 mb-1">GST</label>
+                    <div className="font-medium text-gray-900">{selectedProduct.gst_percentage}%</div>
+                  </div>
+                  <div>
+                    <label className="block text-sm text-gray-500 mb-1">Stock Quantity</label>
+                    <div className="font-medium text-gray-900">{selectedProduct.stock_quantity}</div>
+                  </div>
+                  <div>
+                    <label className="block text-sm text-gray-500 mb-1">Min Order Qty</label>
+                    <div className="font-medium text-gray-900">{selectedProduct.min_order_quantity}</div>
+                  </div>
+                </div>
+
+                {selectedProduct.description && (
+                  <div className="mb-6">
+                    <label className="block text-sm text-gray-500 mb-2">Description</label>
+                    <div className="p-4 bg-gray-50 rounded-xl leading-relaxed text-gray-700">
+                      {selectedProduct.description}
+                    </div>
+                  </div>
+                )}
+
+                {selectedProduct.care_instructions && (
+                  <div className="mb-6">
+                    <label className="block text-sm text-gray-500 mb-2">Care Instructions</label>
+                    <div className="p-4 bg-blue-50 rounded-xl leading-relaxed text-gray-700">
+                      {selectedProduct.care_instructions}
+                    </div>
+                  </div>
+                )}
+
+                <div className="p-4 bg-gray-50 rounded-xl">
+                  <div className="text-sm font-semibold text-gray-900 mb-2">
+                    Supplier Information
+                  </div>
+                  <div className="text-sm text-gray-600">
+                    Business: {selectedProduct.supplier?.business_name || 'N/A'}
+                  </div>
+                  <div className="text-sm text-gray-600">
+                    Email: {selectedProduct.supplier?.email || 'N/A'}
+                  </div>
+                  {selectedProduct.supplier?.gstin && (
+                    <div className="text-sm text-gray-600">
+                      GSTIN: {selectedProduct.supplier.gstin}
+                    </div>
+                  )}
+                </div>
+              </div>
+
+              {/* Action Buttons */}
+              <div className="flex gap-4">
+                <button
+                  onClick={handleApprove}
+                  disabled={loading}
+                  className="flex-1 flex items-center justify-center gap-2 py-3 bg-emerald-500 text-white rounded-xl font-semibold text-base hover:bg-emerald-600 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                >
+                  <CheckCircle className="w-5 h-5" />
+                  Approve Product
+                </button>
+                <button
+                  onClick={() => setShowRejectModal(true)}
+                  disabled={loading}
+                  className="flex-1 flex items-center justify-center gap-2 py-3 bg-red-500 text-white rounded-xl font-semibold text-base hover:bg-red-600 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                >
+                  <XCircle className="w-5 h-5" />
+                  Reject Product
+                </button>
+              </div>
+            </>
+          )}
+        </div>
       </div>
-    </div>
+
+      {/* Rejection Modal */}
+      <Modal
+        isOpen={showRejectModal}
+        onClose={() => {
+          setShowRejectModal(false);
+          setRejectionReason('');
+        }}
+        title="Reject Product"
+      >
+        <p className="text-gray-500 mb-4">
+          Please provide a reason for rejecting this product. This will be sent to the supplier.
+        </p>
+
+        <textarea
+          value={rejectionReason}
+          onChange={(e) => setRejectionReason(e.target.value)}
+          placeholder="Enter rejection reason..."
+          rows={4}
+          className="input-base mb-4"
+        />
+
+        <div className="flex gap-3">
+          <button
+            onClick={() => {
+              setShowRejectModal(false);
+              setRejectionReason('');
+            }}
+            className="btn-ghost flex-1 border border-gray-200"
+          >
+            Cancel
+          </button>
+          <button
+            onClick={handleReject}
+            disabled={loading || !rejectionReason.trim()}
+            className="btn-danger flex-1"
+          >
+            {loading ? 'Rejecting...' : 'Reject Product'}
+          </button>
+        </div>
+      </Modal>
+    </AdminLayout>
   );
 };

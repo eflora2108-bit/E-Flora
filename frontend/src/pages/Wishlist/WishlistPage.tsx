@@ -5,6 +5,8 @@ import { wishlistService } from '../../services/wishlistService';
 import { WishlistItem } from '../../types';
 import { toast } from 'react-hot-toast';
 import { useCart } from '../../contexts/CartContext';
+import { LoadingSpinner } from '../../components/ui/LoadingSpinner';
+import { EmptyState } from '../../components/ui/EmptyState';
 
 const WishlistPage: React.FC = () => {
   const [wishlist, setWishlist] = useState<WishlistItem[]>([]);
@@ -106,30 +108,26 @@ const WishlistPage: React.FC = () => {
   };
 
   if (loading) {
-    return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
-        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-green-600"></div>
-      </div>
-    );
+    return <LoadingSpinner fullPage text="Loading wishlist..." />;
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 py-8">
+    <div className="min-h-screen bg-gray-50 py-8 animate-fade-in">
       <div className="container mx-auto px-4">
-        <div className="mb-6 flex items-center justify-between">
+        <div className="mb-6 flex items-center justify-between animate-fade-in-up">
           <div>
             <h1 className="text-3xl font-bold text-gray-900 flex items-center gap-2">
               <Heart className="w-8 h-8 text-red-500 fill-current" />
               My Wishlist
             </h1>
-            <p className="text-gray-600 mt-1">
+            <p className="text-gray-500 mt-1">
               {wishlist.length} {wishlist.length === 1 ? 'item' : 'items'}
             </p>
           </div>
           {wishlist.length > 0 && (
             <button
               onClick={handleClearWishlist}
-              className="px-4 py-2 text-red-600 border border-red-600 rounded-lg hover:bg-red-50 transition-colors flex items-center gap-2"
+              className="px-4 py-2 text-red-500 border border-red-500 rounded-lg hover:bg-red-50 transition-colors flex items-center gap-2"
             >
               <Trash2 className="w-4 h-4" />
               Clear All
@@ -138,27 +136,21 @@ const WishlistPage: React.FC = () => {
         </div>
 
         {wishlist.length === 0 ? (
-          <div className="bg-white rounded-lg shadow-md p-12 text-center">
-            <Heart className="w-16 h-16 text-gray-300 mx-auto mb-4" />
-            <h2 className="text-2xl font-semibold text-gray-900 mb-2">
-              Your wishlist is empty
-            </h2>
-            <p className="text-gray-600 mb-6">
-              Add products you love to your wishlist and keep track of them here
-            </p>
-            <Link
-              to="/products"
-              className="inline-block px-6 py-3 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors"
-            >
-              Browse Products
-            </Link>
+          <div className="bg-white rounded-xl shadow-sm">
+            <EmptyState
+              icon={<Heart className="w-16 h-16 text-gray-300" />}
+              title="Your wishlist is empty"
+              description="Add products you love to your wishlist and keep track of them here"
+              actionLabel="Browse Products"
+              onAction={() => window.location.href = '/products'}
+            />
           </div>
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
             {wishlist.map((item) => (
               <div
                 key={item.id}
-                className="bg-white rounded-lg shadow-md overflow-hidden hover:shadow-lg transition-shadow relative"
+                className="bg-white rounded-xl shadow-sm overflow-hidden card-hover relative animate-fade-in-up"
               >
                 {/* Remove Button */}
                 <button
@@ -192,18 +184,18 @@ const WishlistPage: React.FC = () => {
 
                 <div className="p-4">
                   <Link to={`/products/${item.slug}`}>
-                    <h3 className="font-semibold text-gray-900 mb-1 hover:text-green-600 transition-colors line-clamp-2">
+                    <h3 className="font-semibold text-gray-900 mb-1 hover:text-primary-600 transition-colors line-clamp-2">
                       {item.name}
                     </h3>
                   </Link>
-                  <p className="text-sm text-gray-600 mb-2">{item.category_name}</p>
+                  <p className="text-sm text-gray-500 mb-2">{item.category_name}</p>
 
                   <div className="flex items-baseline gap-2 mb-4">
                     <span className="text-xl font-bold text-gray-900">
                       ₹{Number(item.price || 0).toFixed(2)}
                     </span>
                     {item.mrp && Number(item.mrp) > Number(item.price || 0) && (
-                      <span className="text-sm text-gray-500 line-through">
+                      <span className="text-sm text-gray-400 line-through">
                         ₹{Number(item.mrp).toFixed(2)}
                       </span>
                     )}
@@ -217,7 +209,7 @@ const WishlistPage: React.FC = () => {
                         w-full mb-2 px-3 py-2 rounded-lg text-sm flex items-center justify-center gap-2 transition-colors
                         ${
                           item.notify_on_stock
-                            ? 'bg-green-50 text-green-700 border border-green-200'
+                            ? 'bg-primary-50 text-primary-700 border border-primary-200'
                             : 'bg-gray-50 text-gray-700 border border-gray-200 hover:bg-gray-100'
                         }
                       `}
@@ -240,7 +232,7 @@ const WishlistPage: React.FC = () => {
                   <button
                     onClick={() => handleAddToCart(item)}
                     disabled={!item.is_active || item.stock_quantity === 0}
-                    className="w-full px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+                    className="w-full px-4 py-2 bg-primary-600 text-white rounded-lg hover:bg-primary-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
                   >
                     <ShoppingCart className="w-4 h-4" />
                     <span>

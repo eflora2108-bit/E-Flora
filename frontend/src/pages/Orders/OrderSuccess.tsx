@@ -2,6 +2,8 @@ import { useEffect, useState } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { orderService } from '../../services/orderService';
 import { Order } from '../../types';
+import { LoadingSpinner } from '../../components/ui/LoadingSpinner';
+import { StatusBadge } from '../../components/ui/StatusBadge';
 
 export const OrderSuccessPage = () => {
   const navigate = useNavigate();
@@ -30,84 +32,55 @@ export const OrderSuccessPage = () => {
   };
 
   if (loading) {
-    return (
-      <div style={{ minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-        <p>Loading order details...</p>
-      </div>
-    );
+    return <LoadingSpinner fullPage text="Loading order details..." />;
   }
 
   return (
-    <div style={{ minHeight: '100vh', background: '#f5f5f5', padding: '2rem' }}>
-      <div style={{ maxWidth: '800px', margin: '0 auto' }}>
-        <div style={{ background: 'white', borderRadius: '12px', padding: '3rem', textAlign: 'center' }}>
-          <div style={{ fontSize: '5rem', marginBottom: '1rem' }}>✅</div>
-          <h1 style={{ marginBottom: '1rem', color: '#10b981' }}>Order Placed Successfully!</h1>
-          <p style={{ fontSize: '1.1rem', color: '#666', marginBottom: '2rem' }}>
+    <div className="min-h-screen bg-gray-50 p-8">
+      <div className="max-w-3xl mx-auto animate-fade-in-up">
+        <div className="bg-white rounded-xl p-12 text-center shadow-sm">
+          <div className="text-7xl mb-4 animate-bounce-in">✅</div>
+          <h1 className="text-3xl font-bold text-emerald-500 mb-4">Order Placed Successfully!</h1>
+          <p className="text-lg text-gray-500 mb-8">
             Thank you for your order. We've received your payment and will process your order soon.
           </p>
 
           {order && (
-            <div style={{ background: '#f9f9f9', borderRadius: '8px', padding: '1.5rem', marginBottom: '2rem', textAlign: 'left' }}>
-              <div style={{ marginBottom: '1rem' }}>
-                <strong>Order Number:</strong> {order.order_number}
+            <div className="bg-gray-50 rounded-lg p-6 mb-8 text-left animate-fade-in">
+              <div className="mb-4">
+                <strong className="text-gray-700">Order Number:</strong>{' '}
+                <span className="text-gray-900">{order.order_number}</span>
               </div>
-              <div style={{ marginBottom: '1rem' }}>
-                <strong>Order Total:</strong> ₹{Number(order.total_amount).toFixed(2)}
+              <div className="mb-4">
+                <strong className="text-gray-700">Order Total:</strong>{' '}
+                <span className="text-gray-900 font-semibold">₹{Number(order.total_amount).toFixed(2)}</span>
               </div>
-              <div>
-                <strong>Status:</strong>{' '}
-                <span
-                  style={{
-                    padding: '0.25rem 0.75rem',
-                    background: '#10b981',
-                    color: 'white',
-                    borderRadius: '12px',
-                    fontSize: '0.85rem',
-                    fontWeight: '600',
-                  }}
-                >
-                  {order.status}
-                </span>
+              <div className="flex items-center gap-2">
+                <strong className="text-gray-700">Status:</strong>
+                <StatusBadge status={order.status} size="md" />
               </div>
             </div>
           )}
 
-          <div style={{ background: '#e7f3ff', borderRadius: '8px', padding: '1.5rem', marginBottom: '2rem', textAlign: 'left' }}>
-            <strong>What's Next?</strong>
-            <ul style={{ marginTop: '0.75rem', paddingLeft: '1.5rem', lineHeight: '2' }}>
+          <div className="bg-blue-50 rounded-lg p-6 mb-8 text-left">
+            <strong className="text-gray-800">What's Next?</strong>
+            <ul className="mt-3 pl-6 leading-8 text-gray-600 list-disc">
               <li>You'll receive an order confirmation email shortly</li>
               <li>We'll notify you when your order is shipped</li>
               <li>Track your order status in "My Orders"</li>
             </ul>
           </div>
 
-          <div style={{ display: 'flex', gap: '1rem', justifyContent: 'center' }}>
+          <div className="flex gap-4 justify-center">
             <button
               onClick={() => navigate('/orders')}
-              style={{
-                padding: '0.875rem 2rem',
-                background: '#667eea',
-                color: 'white',
-                border: 'none',
-                borderRadius: '8px',
-                fontWeight: '600',
-                cursor: 'pointer',
-              }}
+              className="btn-primary px-8 py-3"
             >
               View My Orders
             </button>
             <button
               onClick={() => navigate('/products')}
-              style={{
-                padding: '0.875rem 2rem',
-                background: 'transparent',
-                color: '#667eea',
-                border: '1px solid #667eea',
-                borderRadius: '8px',
-                fontWeight: '600',
-                cursor: 'pointer',
-              }}
+              className="btn-secondary px-8 py-3"
             >
               Continue Shopping
             </button>

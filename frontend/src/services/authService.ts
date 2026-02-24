@@ -52,6 +52,16 @@ export const authService = {
     }
   },
 
+  // Update profile
+  async updateProfile(data: { first_name?: string; last_name?: string; phone?: string }): Promise<User> {
+    try {
+      const response = await api.put<ApiResponse<User>>('/auth/profile', data);
+      return response.data.data!;
+    } catch (error) {
+      throw new Error(getErrorMessage(error));
+    }
+  },
+
   // Verify email
   async verifyEmail(token: string): Promise<void> {
     try {

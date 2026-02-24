@@ -20,11 +20,11 @@ export class InvoiceModel {
 
     const sql = `
       INSERT INTO invoices (
-        invoice_number, order_id, user_id, subtotal,
+        invoice_number, order_id, user_id, invoice_date, subtotal,
         cgst_amount, sgst_amount, igst_amount, total_gst,
         shipping_charges, total_amount, status
       )
-      VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11)
+      VALUES ($1, $2, $3, CURRENT_DATE, $4, $5, $6, $7, $8, $9, $10, $11)
       RETURNING *
     `;
 

@@ -17,6 +17,7 @@ router.post('/refresh', AuthController.refreshToken);
 router.use(authenticate); // All routes below require authentication
 
 router.get('/me', AuthController.getProfile);
+router.put('/profile', AuthController.updateProfile);
 router.post('/change-password', AuthController.changePassword);
 router.post('/logout', AuthController.logout);
 
