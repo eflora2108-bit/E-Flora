@@ -26,29 +26,16 @@ import notificationRoutes from './routes/notificationRoutes';
 // Create Express app
 const app: Application = express();
 
-// CORS configuration - MUST be before helmet and other middleware
-const allowedOrigins = [
-  env.FRONTEND_URL,
-  'http://localhost:3000',
-  'http://localhost:5173',
-].filter(Boolean);
-
-const corsOptions = {
-  origin: (origin: string | undefined, callback: (err: Error | null, allow?: boolean) => void) => {
-    // Allow requests with no origin (mobile apps, curl, etc.)
-    if (!origin || allowedOrigins.some(allowed => origin.startsWith(allowed))) {
-      callback(null, true);
-    } else {
-      console.warn(`CORS blocked origin: ${origin}`);
-      callback(null, false);
-    }
-  },
+// CORS - allow all origins in production for now, restrict later
+app.use(cors({
+  origin: true,
   credentials: true,
   methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
   allowedHeaders: ['Content-Type', 'Authorization'],
-  optionsSuccessStatus: 200,
-};
-app.use(cors(corsOptions));
+}));
+
+// Handle preflight explicitly
+app.options('*', cors());
 
 // Security middleware - configured for cross-origin API usage
 app.use(helmet({
