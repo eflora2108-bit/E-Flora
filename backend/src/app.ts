@@ -26,10 +26,7 @@ import notificationRoutes from './routes/notificationRoutes';
 // Create Express app
 const app: Application = express();
 
-// Security middleware
-app.use(helmet());
-
-// CORS configuration - support multiple origins for production
+// CORS configuration - MUST be before helmet and other middleware
 const allowedOrigins = [
   env.FRONTEND_URL,
   'http://localhost:3000',
@@ -42,13 +39,22 @@ const corsOptions = {
     if (!origin || allowedOrigins.some(allowed => origin.startsWith(allowed))) {
       callback(null, true);
     } else {
+      console.warn(`CORS blocked origin: ${origin}`);
       callback(null, false);
     }
   },
   credentials: true,
+  methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization'],
   optionsSuccessStatus: 200,
 };
 app.use(cors(corsOptions));
+
+// Security middleware - configured for cross-origin API usage
+app.use(helmet({
+  crossOriginResourcePolicy: { policy: 'cross-origin' },
+  crossOriginOpenerPolicy: { policy: 'unsafe-none' },
+}));
 
 // Rate limiting
 const limiter = rateLimit({
