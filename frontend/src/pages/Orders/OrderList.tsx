@@ -181,7 +181,7 @@ export const OrderListPage = () => {
                       )}
                     </div>
                     <div style={{ fontSize: '1.5rem', fontWeight: '700', color: '#667eea' }}>
-                      ₹{order.total_amount.toFixed(2)}
+                      ₹{Number(order.total_amount).toFixed(2)}
                     </div>
                   </div>
                 </div>

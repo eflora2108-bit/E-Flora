@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { adminService } from '../../services/adminService';
 import { Supplier } from '../../types';
+import { toast } from 'react-hot-toast';
 
 export const AdminSupplierVerification = () => {
   const [suppliers, setSuppliers] = useState<Supplier[]>([]);
@@ -30,11 +31,11 @@ export const AdminSupplierVerification = () => {
     setActionLoading(true);
     try {
       await adminService.approveSupplier(id);
-      alert('Supplier approved successfully!');
+      toast.success('Supplier approved successfully!');
       setSuppliers(suppliers.filter(s => s.id !== id));
       setSelectedSupplier(null);
     } catch (error: any) {
-      alert('Error: ' + error.message);
+      toast.error(error.message || 'Failed to approve supplier');
     } finally {
       setActionLoading(false);
     }
@@ -42,19 +43,19 @@ export const AdminSupplierVerification = () => {
 
   const handleReject = async (id: string) => {
     if (!rejectionReason.trim()) {
-      alert('Please provide a rejection reason');
+      toast.error('Please provide a rejection reason');
       return;
     }
 
     setActionLoading(true);
     try {
       await adminService.rejectSupplier(id, rejectionReason);
-      alert('Supplier rejected');
+      toast.success('Supplier application rejected');
       setSuppliers(suppliers.filter(s => s.id !== id));
       setSelectedSupplier(null);
       setRejectionReason('');
     } catch (error: any) {
-      alert('Error: ' + error.message);
+      toast.error(error.message || 'Failed to reject supplier');
     } finally {
       setActionLoading(false);
     }

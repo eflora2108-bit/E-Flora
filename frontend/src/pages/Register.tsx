@@ -1,9 +1,11 @@
 import { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
 import { UserRole } from '../types';
 
 export const RegisterPage = () => {
   const { register } = useAuth();
+  const navigate = useNavigate();
   const [formData, setFormData] = useState({
     email: '',
     password: '',
@@ -44,6 +46,7 @@ export const RegisterPage = () => {
         phone: formData.phone || undefined,
         role: formData.role,
       });
+      navigate('/products');
     } catch (err: any) {
       setError(err.message || 'Registration failed');
     } finally {

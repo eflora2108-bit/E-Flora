@@ -131,11 +131,11 @@ export class PaymentController {
       }
 
       // Always return 200 to Razorpay to acknowledge receipt
-      res.status(200).json({ success: true });
+      return res.status(200).json({ success: true });
     } catch (error: any) {
       logger.error(`Webhook error: ${error.message}`);
       // Still return 200 to avoid Razorpay retries
-      res.status(200).json({ success: false });
+      return res.status(200).json({ success: false });
     }
   }
 }

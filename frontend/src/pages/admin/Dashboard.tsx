@@ -50,7 +50,7 @@ export const AdminDashboardPage = () => {
     );
   }
 
-  const formatCurrency = (amount: number) => `₹${amount.toFixed(2)}`;
+  const formatCurrency = (amount: number | string) => `₹${Number(amount).toFixed(2)}`;
 
   return (
     <div style={{ minHeight: '100vh', background: '#f5f5f5', padding: '2rem' }}>

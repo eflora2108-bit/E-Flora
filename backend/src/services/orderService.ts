@@ -136,17 +136,17 @@ export class OrderService {
       const updatedOrder = result.rows[0];
 
       // Create order items
-      const orderItems = cart.items.map((item) => ({
+      const orderItems = cart.items.map((item: any) => ({
         order_id: order.id,
         product_id: item.product_id,
         supplier_id: item.supplier_id!,
         product_name: item.name!,
-        product_sku: item.sku!,
+        sku: item.sku || 'N/A',
         quantity: item.quantity,
         unit_price: item.price!,
-        gst_percentage: item.gst_percentage!,
-        gst_amount: item.gst_amount!,
-        total_amount: item.total_with_gst!,
+        gst_percentage: item.gst_percentage || 0,
+        gst_amount: item.gst_amount || 0,
+        total_price: item.total_with_gst || (item.price * item.quantity),
       }));
 
       // Insert order items
@@ -154,7 +154,7 @@ export class OrderService {
       const itemsPlaceholders: string[] = [];
       let paramCount = 1;
 
-      orderItems.forEach((item) => {
+      orderItems.forEach((item: any) => {
         itemsPlaceholders.push(
           `($${paramCount}, $${paramCount + 1}, $${paramCount + 2}, $${paramCount + 3}, $${paramCount + 4}, $${paramCount + 5}, $${paramCount + 6}, $${paramCount + 7}, $${paramCount + 8}, $${paramCount + 9})`
         );
@@ -163,27 +163,27 @@ export class OrderService {
           item.product_id,
           item.supplier_id,
           item.product_name,
-          item.product_sku,
+          item.sku,
           item.quantity,
           item.unit_price,
           item.gst_percentage,
           item.gst_amount,
-          item.total_amount
+          item.total_price
         );
         paramCount += 10;
       });
 
       const itemsSql = `
         INSERT INTO order_items (
-          order_id, product_id, supplier_id, product_name, product_sku,
-          quantity, unit_price, gst_percentage, gst_amount, total_amount
+          order_id, product_id, supplier_id, product_name, sku,
+          quantity, unit_price, gst_percentage, gst_amount, total_price
         )
         VALUES ${itemsPlaceholders.join(', ')}
       `;
       await client.query(itemsSql, itemsInsertValues);
 
       // Deduct stock
-      const stockItems = cart.items.map((item) => ({
+      const stockItems = cart.items.map((item: any) => ({
         productId: item.product_id,
         quantity: item.quantity,
       }));

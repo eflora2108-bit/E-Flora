@@ -190,9 +190,9 @@ export class AnalyticsController {
       // Set headers for CSV download
       res.setHeader('Content-Type', 'text/csv');
       res.setHeader('Content-Disposition', `attachment; filename="${filename}"`);
-      res.send(csv);
+      return res.send(csv);
     } catch (error) {
-      next(error);
+      return next(error);
     }
   }
 }

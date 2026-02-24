@@ -2,9 +2,10 @@ import { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { invoiceService } from '../../services/invoiceService';
 import { Invoice } from '../../types';
+import { toast } from 'react-hot-toast';
 
 export const InvoiceViewPage = () => {
-  const { invoiceId } = useParams<{ invoiceId: string }>();
+  const { id: invoiceId } = useParams<{ id: string }>();
   const navigate = useNavigate();
   const [invoice, setInvoice] = useState<Invoice | null>(null);
   const [loading, setLoading] = useState(true);
@@ -39,7 +40,7 @@ export const InvoiceViewPage = () => {
     try {
       setError('');
       await invoiceService.resendInvoiceEmail(invoiceId!);
-      alert('Invoice email sent successfully!');
+      toast.success('Invoice email sent successfully!');
     } catch (err: any) {
       setError(err.message || 'Failed to resend email');
     }
@@ -190,29 +191,29 @@ export const InvoiceViewPage = () => {
               <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
                 <div style={{ display: 'flex', justifyContent: 'space-between' }}>
                   <span>Subtotal:</span>
-                  <span>₹{invoice.subtotal.toFixed(2)}</span>
+                  <span>₹{Number(invoice.subtotal).toFixed(2)}</span>
                 </div>
                 {invoice.igst_amount > 0 ? (
                   <div style={{ display: 'flex', justifyContent: 'space-between', color: '#666' }}>
                     <span>IGST:</span>
-                    <span>₹{invoice.igst_amount.toFixed(2)}</span>
+                    <span>₹{Number(invoice.igst_amount).toFixed(2)}</span>
                   </div>
                 ) : (
                   <>
                     <div style={{ display: 'flex', justifyContent: 'space-between', color: '#666' }}>
                       <span>CGST:</span>
-                      <span>₹{invoice.cgst_amount.toFixed(2)}</span>
+                      <span>₹{Number(invoice.cgst_amount).toFixed(2)}</span>
                     </div>
                     <div style={{ display: 'flex', justifyContent: 'space-between', color: '#666' }}>
                       <span>SGST:</span>
-                      <span>₹{invoice.sgst_amount.toFixed(2)}</span>
+                      <span>₹{Number(invoice.sgst_amount).toFixed(2)}</span>
                     </div>
                   </>
                 )}
                 {invoice.shipping_charges > 0 && (
                   <div style={{ display: 'flex', justifyContent: 'space-between', color: '#666' }}>
                     <span>Shipping:</span>
-                    <span>₹{invoice.shipping_charges.toFixed(2)}</span>
+                    <span>₹{Number(invoice.shipping_charges).toFixed(2)}</span>
                   </div>
                 )}
                 <div
@@ -227,7 +228,7 @@ export const InvoiceViewPage = () => {
                   }}
                 >
                   <span>Total:</span>
-                  <span style={{ color: '#667eea' }}>₹{invoice.total_amount.toFixed(2)}</span>
+                  <span style={{ color: '#667eea' }}>₹{Number(invoice.total_amount).toFixed(2)}</span>
                 </div>
               </div>
             </div>
@@ -241,7 +242,7 @@ export const InvoiceViewPage = () => {
                 <>
                   <div>
                     <div style={{ fontSize: '0.85rem', color: '#666', marginBottom: '0.25rem' }}>IGST</div>
-                    <div style={{ fontSize: '1.1rem', fontWeight: '600' }}>₹{invoice.igst_amount.toFixed(2)}</div>
+                    <div style={{ fontSize: '1.1rem', fontWeight: '600' }}>₹{Number(invoice.igst_amount).toFixed(2)}</div>
                     <div style={{ fontSize: '0.75rem', color: '#999', marginTop: '0.25rem' }}>Inter-state</div>
                   </div>
                   <div>
@@ -257,12 +258,12 @@ export const InvoiceViewPage = () => {
                 <>
                   <div>
                     <div style={{ fontSize: '0.85rem', color: '#666', marginBottom: '0.25rem' }}>CGST</div>
-                    <div style={{ fontSize: '1.1rem', fontWeight: '600' }}>₹{invoice.cgst_amount.toFixed(2)}</div>
+                    <div style={{ fontSize: '1.1rem', fontWeight: '600' }}>₹{Number(invoice.cgst_amount).toFixed(2)}</div>
                     <div style={{ fontSize: '0.75rem', color: '#999', marginTop: '0.25rem' }}>Intra-state</div>
                   </div>
                   <div>
                     <div style={{ fontSize: '0.85rem', color: '#666', marginBottom: '0.25rem' }}>SGST</div>
-                    <div style={{ fontSize: '1.1rem', fontWeight: '600' }}>₹{invoice.sgst_amount.toFixed(2)}</div>
+                    <div style={{ fontSize: '1.1rem', fontWeight: '600' }}>₹{Number(invoice.sgst_amount).toFixed(2)}</div>
                     <div style={{ fontSize: '0.75rem', color: '#999', marginTop: '0.25rem' }}>Intra-state</div>
                   </div>
                   <div>
@@ -276,7 +277,7 @@ export const InvoiceViewPage = () => {
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                 <span style={{ fontWeight: '600' }}>Total GST:</span>
                 <span style={{ fontSize: '1.2rem', fontWeight: '700', color: '#667eea' }}>
-                  ₹{invoice.total_gst.toFixed(2)}
+                  ₹{Number(invoice.total_gst).toFixed(2)}
                 </span>
               </div>
             </div>

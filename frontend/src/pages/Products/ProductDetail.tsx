@@ -5,6 +5,7 @@ import { Product } from '../../types';
 import ReviewList from '../../components/Reviews/ReviewList';
 import WriteReview from '../../components/Reviews/WriteReview';
 import { useAuth } from '../../contexts/AuthContext';
+import { useCart } from '../../contexts/CartContext';
 import { Heart } from 'lucide-react';
 import { wishlistService } from '../../services/wishlistService';
 import { toast } from 'react-hot-toast';
@@ -44,10 +45,21 @@ export const ProductDetailPage = () => {
     }
   };
 
-  const handleAddToCart = () => {
+  const { addToCart } = useCart();
+
+  const handleAddToCart = async () => {
     if (!product) return;
-    // Cart functionality will be implemented in Phase 6
-    alert(`Added ${quantity} x ${product.name} to cart!`);
+    if (!isAuthenticated) {
+      toast.error('Please login to add items to cart');
+      navigate('/login');
+      return;
+    }
+    try {
+      await addToCart(product.id, quantity);
+      toast.success(`${quantity} x ${product.name} added to cart!`);
+    } catch (err: any) {
+      toast.error(err.message || 'Failed to add to cart');
+    }
   };
 
   const handleToggleWishlist = async () => {
@@ -203,15 +215,15 @@ export const ProductDetailPage = () => {
               <div style={{ marginBottom: '1.5rem' }}>
                 <div style={{ display: 'flex', alignItems: 'baseline', gap: '1rem', marginBottom: '0.5rem' }}>
                   <div style={{ fontSize: '2.5rem', fontWeight: '700', color: '#667eea' }}>
-                    ₹{product.price.toFixed(2)}
+                    ₹{Number(product.price).toFixed(2)}
                   </div>
-                  {product.mrp && product.mrp > product.price && (
+                  {product.mrp && Number(product.mrp) > Number(product.price) && (
                     <>
                       <div style={{ fontSize: '1.2rem', color: '#999', textDecoration: 'line-through' }}>
-                        ₹{product.mrp.toFixed(2)}
+                        ₹{Number(product.mrp).toFixed(2)}
                       </div>
                       <div style={{ fontSize: '1rem', fontWeight: '600', color: '#10b981' }}>
-                        {Math.round(((product.mrp - product.price) / product.mrp) * 100)}% OFF
+                        {Math.round(((Number(product.mrp) - Number(product.price)) / Number(product.mrp)) * 100)}% OFF
                       </div>
                     </>
                   )}

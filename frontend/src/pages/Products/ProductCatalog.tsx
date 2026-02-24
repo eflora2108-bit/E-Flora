@@ -3,9 +3,14 @@ import { useNavigate } from 'react-router-dom';
 import { productService } from '../../services/productService';
 import { categoryService } from '../../services/categoryService';
 import { Product, Category } from '../../types';
+import { useCart } from '../../contexts/CartContext';
+import { useAuth } from '../../contexts/AuthContext';
+import { toast } from 'react-hot-toast';
 
 export const ProductCatalogPage = () => {
   const navigate = useNavigate();
+  const { addToCart } = useCart();
+  const { isAuthenticated } = useAuth();
   const [products, setProducts] = useState<Product[]>([]);
   const [categories, setCategories] = useState<Category[]>([]);
   const [loading, setLoading] = useState(false);
@@ -299,11 +304,11 @@ export const ProductCatalogPage = () => {
 
                         <div style={{ display: 'flex', alignItems: 'baseline', gap: '0.5rem', marginBottom: '0.75rem' }}>
                           <div style={{ fontSize: '1.5rem', fontWeight: '700', color: '#667eea' }}>
-                            ₹{product.price.toFixed(2)}
+                            ₹{Number(product.price).toFixed(2)}
                           </div>
-                          {product.mrp && product.mrp > product.price && (
+                          {product.mrp && Number(product.mrp) > Number(product.price) && (
                             <div style={{ fontSize: '0.9rem', color: '#999', textDecoration: 'line-through' }}>
-                              ₹{product.mrp.toFixed(2)}
+                              ₹{Number(product.mrp).toFixed(2)}
                             </div>
                           )}
                         </div>
@@ -313,10 +318,19 @@ export const ProductCatalogPage = () => {
                         </div>
 
                         <button
-                          onClick={(e) => {
+                          onClick={async (e) => {
                             e.stopPropagation();
-                            // Add to cart logic will be implemented in Phase 6
-                            alert('Add to cart feature coming soon!');
+                            if (!isAuthenticated) {
+                              toast.error('Please login to add items to cart');
+                              navigate('/login');
+                              return;
+                            }
+                            try {
+                              await addToCart(product.id, 1);
+                              toast.success(`${product.name} added to cart!`);
+                            } catch (err: any) {
+                              toast.error(err.message || 'Failed to add to cart');
+                            }
                           }}
                           disabled={product.stock_quantity === 0}
                           style={{

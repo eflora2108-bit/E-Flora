@@ -6,13 +6,9 @@ import { uploadMultiple } from '../config/multer';
 
 const router = Router();
 
-// Public routes
-router.get('/', ProductController.getPublicProducts);
-router.get('/:slug', ProductController.getBySlug);
-
-// Supplier routes (protected)
-router.post('/', authenticate, requireSupplier, ProductController.create);
+// Supplier routes (protected) - must be before /:slug to avoid conflict
 router.get('/my-products', authenticate, requireSupplier, ProductController.getMyProducts);
+router.post('/', authenticate, requireSupplier, ProductController.create);
 router.put('/:id', authenticate, requireSupplier, ProductController.update);
 router.post(
   '/:id/images',
@@ -22,5 +18,9 @@ router.post(
   ProductController.uploadImages
 );
 router.delete('/:id', authenticate, requireSupplier, ProductController.delete);
+
+// Public routes - /:slug must be last since it's a catch-all pattern
+router.get('/', ProductController.getPublicProducts);
+router.get('/:slug', ProductController.getBySlug);
 
 export default router;

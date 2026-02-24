@@ -38,7 +38,7 @@ export const invoiceService = {
   // Download invoice PDF
   downloadInvoice(invoiceId: string): void {
     const token = localStorage.getItem('accessToken');
-    const url = `${import.meta.env.VITE_API_URL}/invoices/${invoiceId}/download`;
+    const url = `${import.meta.env.VITE_API_BASE_URL}/invoices/${invoiceId}/download`;
 
     const link = document.createElement('a');
     link.href = url;
@@ -69,7 +69,7 @@ export const invoiceService = {
   // Get invoice PDF URL for viewing
   getInvoiceViewUrl(invoiceId: string): string {
     const token = localStorage.getItem('accessToken');
-    return `${import.meta.env.VITE_API_URL}/invoices/${invoiceId}/view?token=${token}`;
+    return `${import.meta.env.VITE_API_BASE_URL}/invoices/${invoiceId}/view?token=${token}`;
   },
 
   // Resend invoice email
@@ -104,7 +104,7 @@ export const invoiceService = {
   // Admin: Download any invoice
   adminDownloadInvoice(invoiceId: string): void {
     const token = localStorage.getItem('accessToken');
-    const url = `${import.meta.env.VITE_API_URL}/admin/invoices/${invoiceId}/download`;
+    const url = `${import.meta.env.VITE_API_BASE_URL}/admin/invoices/${invoiceId}/download`;
 
     const link = document.createElement('a');
     link.href = url;

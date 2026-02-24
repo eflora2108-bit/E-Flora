@@ -48,13 +48,35 @@ export class ReviewController {
 
       res.json({
         success: true,
-        data: reviews,
-        stats,
-        pagination: {
-          page,
-          limit,
-          total,
-          totalPages: Math.ceil(total / limit),
+        data: {
+          reviews,
+          stats,
+          pagination: {
+            page,
+            limit,
+            total,
+            totalPages: Math.ceil(total / limit),
+          },
+        },
+      });
+    } catch (error) {
+      next(error);
+    }
+  }
+
+  // Check if user can review a product
+  static async canReview(req: Request, res: Response, next: NextFunction) {
+    try {
+      const userId = req.user!.userId;
+      const { productId } = req.params;
+
+      const result = await ReviewModel.canUserReview(userId, productId);
+
+      res.json({
+        success: true,
+        data: {
+          can: result.can,
+          orderId: result.orderId,
         },
       });
     } catch (error) {

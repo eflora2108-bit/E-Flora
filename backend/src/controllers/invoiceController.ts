@@ -72,7 +72,7 @@ export class InvoiceController {
       }
 
       // Send file
-      res.download(pdfPath);
+      return res.download(pdfPath);
     } catch (error) {
       next(error);
     }
@@ -104,9 +104,9 @@ export class InvoiceController {
       // Send file for inline viewing
       res.setHeader('Content-Type', 'application/pdf');
       res.setHeader('Content-Disposition', 'inline');
-      fs.createReadStream(pdfPath).pipe(res);
+      return fs.createReadStream(pdfPath).pipe(res);
     } catch (error) {
-      next(error);
+      return next(error);
     }
   }
 
@@ -154,13 +154,13 @@ export class InvoiceController {
         });
       }
 
-      res.json({
+      return res.json({
         success: true,
         message: 'Invoice retrieved successfully',
         data: invoice,
       });
     } catch (error) {
-      next(error);
+      return next(error);
     }
   }
 
@@ -229,7 +229,7 @@ export class InvoiceController {
       }
 
       // Send file
-      res.download(pdfPath);
+      return res.download(pdfPath);
     } catch (error) {
       next(error);
     }

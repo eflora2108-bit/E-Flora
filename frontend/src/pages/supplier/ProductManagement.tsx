@@ -402,7 +402,7 @@ export const ProductManagementPage = () => {
                         <div style={{ fontSize: '0.85rem', color: '#666' }}>{product.category?.name}</div>
                       </td>
                       <td style={{ padding: '1rem', fontSize: '0.9rem', color: '#666' }}>{product.sku}</td>
-                      <td style={{ padding: '1rem', fontWeight: '600' }}>₹{product.price.toFixed(2)}</td>
+                      <td style={{ padding: '1rem', fontWeight: '600' }}>₹{Number(product.price).toFixed(2)}</td>
                       <td style={{ padding: '1rem' }}>
                         <span style={{ color: product.stock_quantity < 10 ? '#ef4444' : '#666' }}>
                           {product.stock_quantity}

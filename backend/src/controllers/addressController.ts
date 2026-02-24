@@ -125,13 +125,13 @@ export class AddressController {
 
       const updated = await AddressModel.update(id, req.body);
 
-      res.status(200).json({
+      return res.status(200).json({
         success: true,
         message: 'Address updated successfully',
         data: updated,
       });
     } catch (error) {
-      next(error);
+      return next(error);
     }
   }
 

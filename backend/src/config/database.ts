@@ -18,7 +18,7 @@ pool.on('connect', () => {
   console.log('✅ Database connected successfully');
 });
 
-pool.on('error', (err) => {
+pool.on('error', (err: unknown) => {
   console.error('❌ Unexpected database error:', err);
   process.exit(-1);
 });

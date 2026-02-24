@@ -81,7 +81,7 @@ export const analyticsService = {
       if (startDate) params.startDate = startDate;
       if (endDate) params.endDate = endDate;
 
-      const response = await fetch(`${import.meta.env.VITE_API_URL}/admin/analytics/export`, {
+      const response = await fetch(`${import.meta.env.VITE_API_BASE_URL}/admin/analytics/export`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

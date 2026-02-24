@@ -118,7 +118,7 @@ export const ProductModerationPage = () => {
                       Supplier: {product.supplier?.business_name || 'Unknown'}
                     </div>
                     <div style={{ fontSize: '0.85rem', fontWeight: '600', marginTop: '0.5rem', color: '#667eea' }}>
-                      ₹{product.price.toFixed(2)}
+                      ₹{Number(product.price).toFixed(2)}
                     </div>
                   </div>
                 ))}
@@ -178,7 +178,7 @@ export const ProductModerationPage = () => {
                         Price
                       </label>
                       <div style={{ fontWeight: '600', fontSize: '1.1rem', color: '#667eea' }}>
-                        ₹{selectedProduct.price.toFixed(2)}
+                        ₹{Number(selectedProduct.price).toFixed(2)}
                       </div>
                     </div>
 
@@ -187,7 +187,7 @@ export const ProductModerationPage = () => {
                         MRP
                       </label>
                       <div style={{ fontWeight: '500' }}>
-                        {selectedProduct.mrp ? `₹${selectedProduct.mrp.toFixed(2)}` : 'N/A'}
+                        {selectedProduct.mrp ? `₹${Number(selectedProduct.mrp).toFixed(2)}` : 'N/A'}
                       </div>
                     </div>
 

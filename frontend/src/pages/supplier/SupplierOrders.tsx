@@ -162,9 +162,9 @@ export const SupplierOrdersPage = () => {
                             </div>
                           </div>
                           <div style={{ textAlign: 'right' }}>
-                            <div style={{ fontWeight: '700' }}>₹{item.total_amount.toFixed(2)}</div>
+                            <div style={{ fontWeight: '700' }}>₹{Number(item.total_amount).toFixed(2)}</div>
                             <div style={{ fontSize: '0.85rem', color: '#666' }}>
-                              (incl. GST ₹{item.gst_amount.toFixed(2)})
+                              (incl. GST ₹{Number(item.gst_amount).toFixed(2)})
                             </div>
                           </div>
                         </div>

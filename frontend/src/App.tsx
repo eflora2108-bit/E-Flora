@@ -27,13 +27,23 @@ import WishlistPage from './pages/Wishlist/WishlistPage';
 
 // Admin Pages
 import { AdminDashboardPage } from './pages/admin/Dashboard';
+import { ProductModerationPage } from './pages/admin/ProductModeration';
+import { AdminSupplierVerification } from './pages/admin/SupplierVerification';
+import { OrderManagementPage } from './pages/admin/OrderManagement';
+import { AdminReportsPage } from './pages/admin/Reports';
+
+// Supplier Pages
+import { SupplierSetupPage } from './pages/supplier/SupplierSetup';
+import { ProductManagementPage } from './pages/supplier/ProductManagement';
+import { SupplierOrdersPage } from './pages/supplier/SupplierOrders';
+import { InventoryDashboardPage } from './pages/supplier/InventoryDashboard';
 
 // Protected Route Component
 import { ProtectedRoute } from './components/ProtectedRoute';
 
 function App() {
   return (
-    <BrowserRouter>
+    <BrowserRouter future={{ v7_startTransition: true, v7_relativeSplatPath: true }}>
       <AuthProvider>
         <CartProvider>
           <Toaster
@@ -169,13 +179,117 @@ function App() {
               }
             />
 
+            {/* Profile redirects to orders */}
+            <Route
+              path="/profile"
+              element={
+                <ProtectedRoute>
+                  <Layout>
+                    <OrderListPage />
+                  </Layout>
+                </ProtectedRoute>
+              }
+            />
+
             {/* Admin Routes */}
             <Route
-              path="/admin/*"
+              path="/admin"
               element={
                 <ProtectedRoute requireAdmin>
                   <Layout>
                     <AdminDashboardPage />
+                  </Layout>
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/admin/dashboard"
+              element={
+                <ProtectedRoute requireAdmin>
+                  <Layout>
+                    <AdminDashboardPage />
+                  </Layout>
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/admin/products/pending"
+              element={
+                <ProtectedRoute requireAdmin>
+                  <Layout>
+                    <ProductModerationPage />
+                  </Layout>
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/admin/suppliers/pending"
+              element={
+                <ProtectedRoute requireAdmin>
+                  <Layout>
+                    <AdminSupplierVerification />
+                  </Layout>
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/admin/orders"
+              element={
+                <ProtectedRoute requireAdmin>
+                  <Layout>
+                    <OrderManagementPage />
+                  </Layout>
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/admin/reports"
+              element={
+                <ProtectedRoute requireAdmin>
+                  <Layout>
+                    <AdminReportsPage />
+                  </Layout>
+                </ProtectedRoute>
+              }
+            />
+
+            {/* Supplier Routes */}
+            <Route
+              path="/supplier/setup"
+              element={
+                <ProtectedRoute requireSupplier>
+                  <Layout>
+                    <SupplierSetupPage />
+                  </Layout>
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/supplier/products"
+              element={
+                <ProtectedRoute requireSupplier>
+                  <Layout>
+                    <ProductManagementPage />
+                  </Layout>
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/supplier/orders"
+              element={
+                <ProtectedRoute requireSupplier>
+                  <Layout>
+                    <SupplierOrdersPage />
+                  </Layout>
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/supplier/inventory"
+              element={
+                <ProtectedRoute requireSupplier>
+                  <Layout>
+                    <InventoryDashboardPage />
                   </Layout>
                 </ProtectedRoute>
               }

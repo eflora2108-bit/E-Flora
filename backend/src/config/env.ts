@@ -158,7 +158,7 @@ function validateEnv(): EnvConfig {
       10
     ),
     RATE_LIMIT_MAX_REQUESTS: parseInt(
-      process.env.RATE_LIMIT_MAX_REQUESTS || '100',
+      process.env.RATE_LIMIT_MAX_REQUESTS || '500',
       10
     ),
 

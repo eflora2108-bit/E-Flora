@@ -160,7 +160,7 @@ export const OrderManagementPage = () => {
                       <td style={{ padding: '1rem', fontSize: '0.9rem', color: '#666' }}>
                         User ID: {order.user_id.substring(0, 8)}...
                       </td>
-                      <td style={{ padding: '1rem', fontWeight: '700' }}>₹{order.total_amount.toFixed(2)}</td>
+                      <td style={{ padding: '1rem', fontWeight: '700' }}>₹{Number(order.total_amount).toFixed(2)}</td>
                       <td style={{ padding: '1rem' }}>
                         <span
                           style={{

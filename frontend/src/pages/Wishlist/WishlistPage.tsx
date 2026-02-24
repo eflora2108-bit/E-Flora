@@ -200,11 +200,11 @@ const WishlistPage: React.FC = () => {
 
                   <div className="flex items-baseline gap-2 mb-4">
                     <span className="text-xl font-bold text-gray-900">
-                      ₹{item.price?.toFixed(2)}
+                      ₹{Number(item.price || 0).toFixed(2)}
                     </span>
-                    {item.mrp && item.mrp > (item.price || 0) && (
+                    {item.mrp && Number(item.mrp) > Number(item.price || 0) && (
                       <span className="text-sm text-gray-500 line-through">
-                        ₹{item.mrp.toFixed(2)}
+                        ₹{Number(item.mrp).toFixed(2)}
                       </span>
                     )}
                   </div>

@@ -241,7 +241,7 @@ export class AnalyticsService {
         p.sku,
         p.price,
         SUM(oi.quantity) as total_quantity,
-        SUM(oi.total_amount) as total_revenue,
+        SUM(oi.total_price) as total_revenue,
         COUNT(DISTINCT oi.order_id) as order_count
       FROM products p
       INNER JOIN order_items oi ON p.id = oi.product_id
@@ -253,7 +253,7 @@ export class AnalyticsService {
     `;
 
     const result = await query(sql, [PaymentStatus.COMPLETED, limit]);
-    return result.rows.map((row) => ({
+    return result.rows.map((row: any) => ({
       id: row.id,
       name: row.name,
       sku: row.sku,
@@ -334,7 +334,7 @@ export class AnalyticsService {
     `;
 
     const result = await query(sql, [PaymentStatus.COMPLETED]);
-    return result.rows.map((row) => ({
+    return result.rows.map((row: any) => ({
       date: row.date,
       orderCount: parseInt(row.order_count),
       revenue: parseFloat(row.revenue),
@@ -402,7 +402,7 @@ export class AnalyticsService {
     `;
 
     const result = await query(sql, params);
-    return result.rows.map((row) => ({
+    return result.rows.map((row: any) => ({
       categoryId: row.id,
       categoryName: row.category_name,
       orderCount: parseInt(row.order_count),
@@ -443,7 +443,7 @@ export class AnalyticsService {
     `;
 
     const result = await query(sql, params);
-    return result.rows.map((row) => ({
+    return result.rows.map((row: any) => ({
       supplierId: row.id,
       businessName: row.business_name,
       email: row.email,
@@ -479,7 +479,7 @@ export class AnalyticsService {
     `;
 
     const result = await query(sql, [ProductModerationStatus.APPROVED]);
-    return result.rows.map((row) => ({
+    return result.rows.map((row: any) => ({
       productId: row.id,
       productName: row.name,
       sku: row.sku,

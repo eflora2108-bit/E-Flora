@@ -4,9 +4,10 @@ import { useAuth } from '../../contexts/AuthContext';
 import { orderService } from '../../services/orderService';
 import { invoiceService } from '../../services/invoiceService';
 import { Order, OrderStatus, PaymentStatus } from '../../types';
+import { toast } from 'react-hot-toast';
 
 export const OrderDetailPage = () => {
-  const { orderId } = useParams<{ orderId: string }>();
+  const { id: orderId } = useParams<{ id: string }>();
   const navigate = useNavigate();
   const { isAuthenticated } = useAuth();
   const [order, setOrder] = useState<Order | null>(null);
@@ -41,9 +42,10 @@ export const OrderDetailPage = () => {
     setCancelling(true);
     try {
       await orderService.cancelOrder(orderId!);
+      toast.success('Order cancelled successfully');
       await fetchOrder(); // Refresh order
     } catch (err: any) {
-      alert(err.message);
+      toast.error(err.message || 'Failed to cancel order');
     } finally {
       setCancelling(false);
     }
@@ -221,15 +223,15 @@ export const OrderDetailPage = () => {
                           SKU: {item.product_sku}
                         </div>
                         <div style={{ fontSize: '0.85rem', color: '#666' }}>
-                          Quantity: {item.quantity} × ₹{item.unit_price.toFixed(2)}
+                          Quantity: {item.quantity} × ₹{Number(item.unit_price).toFixed(2)}
                         </div>
                       </div>
                       <div style={{ textAlign: 'right' }}>
                         <div style={{ fontWeight: '700', fontSize: '1.1rem', marginBottom: '0.5rem' }}>
-                          ₹{item.total_amount.toFixed(2)}
+                          ₹{Number(item.total_amount).toFixed(2)}
                         </div>
                         <div style={{ fontSize: '0.85rem', color: '#666' }}>
-                          (incl. GST ₹{item.gst_amount.toFixed(2)})
+                          (incl. GST ₹{Number(item.gst_amount).toFixed(2)})
                         </div>
                       </div>
                     </div>
@@ -250,21 +252,21 @@ export const OrderDetailPage = () => {
               <div style={{ marginBottom: '1rem', paddingBottom: '1rem', borderBottom: '1px solid #f0f0f0' }}>
                 <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '0.5rem' }}>
                   <span style={{ color: '#666' }}>Subtotal</span>
-                  <span>₹{order.subtotal.toFixed(2)}</span>
+                  <span>₹{Number(order.subtotal).toFixed(2)}</span>
                 </div>
                 <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '0.5rem' }}>
                   <span style={{ color: '#666' }}>GST</span>
-                  <span>₹{order.gst_amount.toFixed(2)}</span>
+                  <span>₹{Number(order.gst_amount).toFixed(2)}</span>
                 </div>
                 <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '0.5rem' }}>
                   <span style={{ color: '#666' }}>Shipping</span>
-                  <span>₹{order.shipping_charges.toFixed(2)}</span>
+                  <span>₹{Number(order.shipping_charges).toFixed(2)}</span>
                 </div>
               </div>
 
               <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '1.2rem', fontWeight: '700' }}>
                 <span>Total</span>
-                <span style={{ color: '#667eea' }}>₹{order.total_amount.toFixed(2)}</span>
+                <span style={{ color: '#667eea' }}>₹{Number(order.total_amount).toFixed(2)}</span>
               </div>
             </div>
 
@@ -343,7 +345,7 @@ export const OrderDetailPage = () => {
                           invoiceService.downloadInvoice(invoice.id);
                         })
                         .catch((err) => {
-                          alert(err.message || 'Failed to download invoice');
+                          toast.error(err.message || 'Failed to download invoice');
                         });
                     }}
                     style={{

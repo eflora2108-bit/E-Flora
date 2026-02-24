@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { analyticsService } from '../../services/analyticsService';
+import { toast } from 'react-hot-toast';
 
 type ReportType = 'sales' | 'category' | 'supplier' | 'inventory';
 
@@ -62,7 +63,7 @@ export const AdminReportsPage = () => {
       setExporting(true);
       await analyticsService.exportReport(reportType, startDate, endDate);
     } catch (err: any) {
-      alert(err.message || 'Failed to export report');
+      toast.error(err.message || 'Failed to export report');
     } finally {
       setExporting(false);
     }

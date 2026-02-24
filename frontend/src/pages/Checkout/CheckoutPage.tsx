@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { useCart } from '../../contexts/CartContext';
 import { useAuth } from '../../contexts/AuthContext';
 import { addressService } from '../../services/addressService';
+import { toast } from 'react-hot-toast';
 import { checkoutService } from '../../services/checkoutService';
 import { paymentService } from '../../services/paymentService';
 import { Address, AddressType, AddressFormData } from '../../types';
@@ -109,58 +110,70 @@ export const CheckoutPage = () => {
     setError('');
 
     try {
-      // Load Razorpay script
-      const scriptLoaded = await paymentService.loadRazorpayScript();
-      if (!scriptLoaded) {
-        throw new Error('Failed to load Razorpay SDK. Please check your internet connection.');
-      }
-
       // Initiate payment (creates order)
       const paymentData = await paymentService.initiatePayment(selectedAddressId);
 
-      // Configure Razorpay options
-      const options = {
-        key: 'rzp_test_YOUR_KEY_ID', // Replace with your Razorpay key in production
-        amount: paymentData.amount * 100, // Amount in paise
-        currency: paymentData.currency,
-        name: 'eFlora Marketplace',
-        description: `Order ${paymentData.order_number}`,
-        order_id: paymentData.razorpay_order_id,
-        handler: async function (response: any) {
-          try {
-            // Verify payment on backend
-            await paymentService.verifyPayment(
-              response.razorpay_order_id,
-              response.razorpay_payment_id,
-              response.razorpay_signature
-            );
+      // Check if Razorpay key is configured
+      const razorpayKey = import.meta.env.VITE_RAZORPAY_KEY_ID;
 
-            // Clear cart and navigate to success page
-            await refreshCart();
-            navigate(`/orders/${paymentData.order_id}/success`);
-          } catch (err: any) {
-            setError(err.message);
-            alert('Payment verification failed. Please contact support.');
-          }
-        },
-        prefill: {
-          name: addresses.find((a) => a.id === selectedAddressId)?.full_name || '',
-          contact: addresses.find((a) => a.id === selectedAddressId)?.phone || '',
-        },
-        theme: {
-          color: '#667eea',
-        },
-        modal: {
-          ondismiss: function () {
-            setLoading(false);
-            setError('Payment cancelled');
+      if (razorpayKey && razorpayKey !== 'rzp_test_YOUR_KEY_ID') {
+        // Real Razorpay flow
+        const scriptLoaded = await paymentService.loadRazorpayScript();
+        if (!scriptLoaded) {
+          throw new Error('Failed to load Razorpay SDK. Please check your internet connection.');
+        }
+
+        const options = {
+          key: razorpayKey,
+          amount: paymentData.amount * 100,
+          currency: paymentData.currency,
+          name: 'eFlora Marketplace',
+          description: `Order ${paymentData.order_number}`,
+          order_id: paymentData.razorpay_order_id,
+          handler: async function (response: any) {
+            try {
+              await paymentService.verifyPayment(
+                response.razorpay_order_id,
+                response.razorpay_payment_id,
+                response.razorpay_signature
+              );
+              await refreshCart();
+              navigate('/order-success', { state: { orderId: paymentData.order_id } });
+            } catch (err: any) {
+              setError(err.message);
+              toast.error('Payment verification failed. Please contact support.');
+            }
           },
-        },
-      };
+          prefill: {
+            name: addresses.find((a) => a.id === selectedAddressId)?.full_name || '',
+            contact: addresses.find((a) => a.id === selectedAddressId)?.phone || '',
+          },
+          theme: { color: '#667eea' },
+          modal: {
+            ondismiss: function () {
+              setLoading(false);
+              setError('Payment cancelled');
+            },
+          },
+        };
 
-      // Open Razorpay checkout
-      const razorpay = new window.Razorpay(options);
-      razorpay.open();
+        const razorpay = new window.Razorpay(options);
+        razorpay.open();
+      } else {
+        // Mock payment flow for development (no Razorpay credentials)
+        const mockPaymentId = `pay_mock_${Date.now()}`;
+        const mockSignature = 'mock_signature_for_development';
+
+        await paymentService.verifyPayment(
+          paymentData.razorpay_order_id,
+          mockPaymentId,
+          mockSignature
+        );
+
+        await refreshCart();
+        toast.success('Order placed successfully!');
+        navigate('/order-success', { state: { orderId: paymentData.order_id } });
+      }
     } catch (err: any) {
       setError(err.message);
     } finally {
@@ -494,7 +507,7 @@ export const CheckoutPage = () => {
                 style={{
                   flex: 2,
                   padding: '1rem',
-                  background: loading ? '#ccc' : '#667eea',
+                  background: loading ? '#ccc' : '#10b981',
                   color: 'white',
                   border: 'none',
                   borderRadius: '8px',
@@ -502,7 +515,11 @@ export const CheckoutPage = () => {
                   cursor: loading ? 'not-allowed' : 'pointer',
                 }}
               >
-                {loading ? 'Processing...' : 'Proceed to Payment'}
+                {loading ? 'Processing Payment...' : (
+                  import.meta.env.VITE_RAZORPAY_KEY_ID && import.meta.env.VITE_RAZORPAY_KEY_ID !== 'rzp_test_YOUR_KEY_ID'
+                    ? 'Pay with Razorpay'
+                    : 'Place Order (Demo Payment)'
+                )}
               </button>
             </div>
           </div>

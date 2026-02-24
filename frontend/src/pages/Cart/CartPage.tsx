@@ -2,6 +2,7 @@ import { useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useCart } from '../../contexts/CartContext';
 import { useAuth } from '../../contexts/AuthContext';
+import { toast } from 'react-hot-toast';
 
 export const CartPage = () => {
   const navigate = useNavigate();
@@ -20,7 +21,7 @@ export const CartPage = () => {
     try {
       await updateQuantity(productId, newQuantity);
     } catch (err: any) {
-      alert(err.message);
+      toast.error(err.message || 'Failed to update quantity');
     }
   };
 
@@ -28,8 +29,9 @@ export const CartPage = () => {
     if (!window.confirm('Remove this item from cart?')) return;
     try {
       await removeItem(productId);
+      toast.success('Item removed from cart');
     } catch (err: any) {
-      alert(err.message);
+      toast.error(err.message || 'Failed to remove item');
     }
   };
 
@@ -117,11 +119,11 @@ export const CartPage = () => {
                       </p>
                       <div style={{ display: 'flex', alignItems: 'baseline', gap: '0.5rem', marginBottom: '0.75rem' }}>
                         <span style={{ fontSize: '1.2rem', fontWeight: '700', color: '#667eea' }}>
-                          ₹{item.price?.toFixed(2)}
+                          ₹{Number(item.price || 0).toFixed(2)}
                         </span>
-                        {item.mrp && item.mrp > (item.price || 0) && (
+                        {item.mrp && Number(item.mrp) > Number(item.price || 0) && (
                           <span style={{ fontSize: '0.9rem', color: '#999', textDecoration: 'line-through' }}>
-                            ₹{item.mrp.toFixed(2)}
+                            ₹{Number(item.mrp).toFixed(2)}
                           </span>
                         )}
                       </div>

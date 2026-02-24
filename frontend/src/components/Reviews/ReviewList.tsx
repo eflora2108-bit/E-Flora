@@ -25,9 +25,9 @@ const ReviewList: React.FC<ReviewListProps> = ({ productId }) => {
     try {
       setLoading(true);
       const data = await reviewService.getProductReviews(productId, page, 10);
-      setReviews(data.reviews);
-      setStats(data.stats);
-      setTotalPages(data.pagination.totalPages);
+      setReviews(data.reviews || []);
+      setStats(data.stats || null);
+      setTotalPages(data.pagination?.totalPages || 1);
     } catch (error: any) {
       toast.error(error.response?.data?.message || 'Failed to load reviews');
     } finally {

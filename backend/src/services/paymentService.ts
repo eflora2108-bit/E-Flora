@@ -63,6 +63,11 @@ export class PaymentService {
     razorpaySignature: string
   ): boolean {
     try {
+      // In development without Razorpay credentials, accept mock payments
+      if (!env.RAZORPAY_KEY_SECRET && razorpayOrderId.startsWith('order_')) {
+        return true;
+      }
+
       // Generate signature
       const generatedSignature = crypto
         .createHmac('sha256', env.RAZORPAY_KEY_SECRET || 'test_secret_key')

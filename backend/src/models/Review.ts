@@ -47,7 +47,8 @@ export class ReviewModel {
     const total = parseInt(countResult.rows[0].count);
 
     const sql = `
-      SELECT r.*, u.first_name, u.last_name, u.email
+      SELECT r.*, u.first_name, u.last_name, u.email,
+             CONCAT(u.first_name, ' ', u.last_name) as user_name
       FROM reviews r
       INNER JOIN users u ON r.user_id = u.id
       WHERE r.product_id = $1 AND r.status = $2
@@ -236,13 +237,15 @@ export class ReviewModel {
     const stats = result.rows[0];
 
     return {
-      totalReviews: parseInt(stats.total_reviews),
-      averageRating: parseFloat(stats.average_rating).toFixed(1),
-      fiveStar: parseInt(stats.five_star),
-      fourStar: parseInt(stats.four_star),
-      threeStar: parseInt(stats.three_star),
-      twoStar: parseInt(stats.two_star),
-      oneStar: parseInt(stats.one_star),
+      total_reviews: parseInt(stats.total_reviews),
+      average_rating: parseFloat(stats.average_rating),
+      rating_distribution: {
+        5: parseInt(stats.five_star),
+        4: parseInt(stats.four_star),
+        3: parseInt(stats.three_star),
+        2: parseInt(stats.two_star),
+        1: parseInt(stats.one_star),
+      },
     };
   }
 

@@ -1,23 +1,26 @@
 import { useEffect, useState } from 'react';
-import { useParams, useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 import { orderService } from '../../services/orderService';
 import { Order } from '../../types';
 
 export const OrderSuccessPage = () => {
-  const { orderId } = useParams<{ orderId: string }>();
   const navigate = useNavigate();
+  const location = useLocation();
+  const orderId = (location.state as any)?.orderId;
   const [order, setOrder] = useState<Order | null>(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     if (orderId) {
       fetchOrder();
+    } else {
+      setLoading(false);
     }
   }, [orderId]);
 
   const fetchOrder = async () => {
     try {
-      const data = await orderService.getOrderDetails(orderId!);
+      const data = await orderService.getOrderDetails(orderId);
       setOrder(data);
     } catch (err) {
       console.error('Failed to fetch order:', err);
@@ -50,7 +53,7 @@ export const OrderSuccessPage = () => {
                 <strong>Order Number:</strong> {order.order_number}
               </div>
               <div style={{ marginBottom: '1rem' }}>
-                <strong>Order Total:</strong> ₹{order.total_amount.toFixed(2)}
+                <strong>Order Total:</strong> ₹{Number(order.total_amount).toFixed(2)}
               </div>
               <div>
                 <strong>Status:</strong>{' '}

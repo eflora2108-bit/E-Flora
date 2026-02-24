@@ -9,6 +9,8 @@ pnpm-lock.yaml
 .env.local
 .env.*.local
 
+nul
+
 # Build outputs
 dist/
 build/

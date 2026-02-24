@@ -82,7 +82,7 @@ export class WishlistModel {
     `;
 
     const result = await query(sql, [productId]);
-    return result.rows.map((row) => row.user_id);
+    return result.rows.map((row: any) => row.user_id);
   }
 
   // Get wishlist count

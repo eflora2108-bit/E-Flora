@@ -42,7 +42,7 @@ export class InvoiceService {
     }
 
     // Get order items
-    const orderItems = await OrderItemModel.findByOrderId(orderId);
+    const orderItems = await OrderItemModel.getByOrderId(orderId);
     if (orderItems.length === 0) {
       throw new AppError('No order items found', 404);
     }
@@ -112,7 +112,7 @@ export class InvoiceService {
       throw new AppError('Order not found', 404);
     }
 
-    const orderItems = await OrderItemModel.findByOrderId(order.id);
+    const orderItems = await OrderItemModel.getByOrderId(order.id);
     const shippingAddress = await AddressModel.findById(order.shipping_address_id);
 
     // Create PDF
@@ -208,7 +208,7 @@ export class InvoiceService {
     let yPosition = tableTop + 25;
     doc.font('Helvetica').fontSize(9);
 
-    orderItems.forEach((item) => {
+    orderItems.forEach((item: any) => {
       doc
         .text(item.product_name.substring(0, 30), 50, yPosition, { width: 140 })
         .text(item.product_sku, 200, yPosition)
@@ -323,8 +323,8 @@ export class InvoiceService {
     doc.end();
 
     // Wait for stream to finish
-    await new Promise((resolve, reject) => {
-      stream.on('finish', resolve);
+    await new Promise<void>((resolve, reject) => {
+      stream.on('finish', () => resolve());
       stream.on('error', reject);
     });
 

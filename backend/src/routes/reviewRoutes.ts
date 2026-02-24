@@ -10,6 +10,7 @@ router.get('/products/:productId/reviews', ReviewController.getProductReviews);
 // Protected routes
 router.use(authenticate);
 
+router.get('/can-review/:productId', ReviewController.canReview);
 router.post('/', ReviewController.createReview);
 router.get('/my-reviews', ReviewController.getMyReviews);
 router.put('/:id', ReviewController.updateReview);
