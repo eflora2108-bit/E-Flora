@@ -17,8 +17,7 @@ const server = app.listen(PORT, async () => {
   if (dbHealthy) {
     logger.info('✅ Database connection established');
   } else {
-    logger.error('❌ Database connection failed');
-    process.exit(1);
+    logger.warn('⚠️ Database connection failed - server running but DB features may not work');
   }
 });
 
