@@ -82,10 +82,6 @@ function validateEnv(): EnvConfig {
     ...(hasDatabaseUrl ? [] : ['DB_HOST', 'DB_PORT', 'DB_NAME', 'DB_USER', 'DB_PASSWORD']),
     'JWT_SECRET',
     'JWT_REFRESH_SECRET',
-    'SMTP_HOST',
-    'SMTP_USER',
-    'SMTP_PASSWORD',
-    'FROM_EMAIL',
   ];
 
   const missing = requiredVars.filter((varName) => !process.env[varName]);
@@ -94,6 +90,13 @@ function validateEnv(): EnvConfig {
     throw new Error(
       `Missing required environment variables: ${missing.join(', ')}`
     );
+  }
+
+  // Warn about optional SMTP config (email features won't work without it)
+  const smtpVars = ['SMTP_HOST', 'SMTP_USER', 'SMTP_PASSWORD', 'FROM_EMAIL'];
+  const missingSMTP = smtpVars.filter((v) => !process.env[v]);
+  if (missingSMTP.length > 0) {
+    console.warn(`⚠️  Missing SMTP env vars (${missingSMTP.join(', ')}). Email features will be disabled.`);
   }
 
   // Validate JWT secret length
@@ -137,12 +140,12 @@ function validateEnv(): EnvConfig {
     AWS_S3_BUCKET: process.env.AWS_S3_BUCKET,
 
     EMAIL_PROVIDER: process.env.EMAIL_PROVIDER || 'smtp',
-    SMTP_HOST: process.env.SMTP_HOST!,
+    SMTP_HOST: process.env.SMTP_HOST || '',
     SMTP_PORT: parseInt(process.env.SMTP_PORT || '587', 10),
     SMTP_SECURE: process.env.SMTP_SECURE === 'true',
-    SMTP_USER: process.env.SMTP_USER!,
-    SMTP_PASSWORD: process.env.SMTP_PASSWORD!,
-    FROM_EMAIL: process.env.FROM_EMAIL!,
+    SMTP_USER: process.env.SMTP_USER || '',
+    SMTP_PASSWORD: process.env.SMTP_PASSWORD || '',
+    FROM_EMAIL: process.env.FROM_EMAIL || 'noreply@eflora.com',
     FROM_NAME: process.env.FROM_NAME || 'eFlora',
 
     PAYMENT_GATEWAY: process.env.PAYMENT_GATEWAY || 'razorpay',
