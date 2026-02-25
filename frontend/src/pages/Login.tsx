@@ -39,7 +39,9 @@ export const LoginPage = () => {
             transition={{ duration: 0.6 }}
             className="text-center"
           >
-            <img src="/Eflora.jpeg" alt="eFlora" className="h-20 w-auto object-contain brightness-0 invert mb-6" />
+            <div className="bg-white rounded-2xl px-6 py-3 shadow-lg mb-6 inline-block">
+              <img src="/Eflora.jpeg" alt="eFlora" className="h-14 w-auto object-contain" />
+            </div>
             <h2 className="text-4xl font-bold mb-4">Welcome to eFlora</h2>
             <p className="text-xl text-white/80 max-w-md">
               India's Premier Plant Marketplace. Discover thousands of plants from verified nurseries.
