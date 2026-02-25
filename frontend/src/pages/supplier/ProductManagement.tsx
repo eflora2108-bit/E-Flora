@@ -6,7 +6,7 @@ import { SupplierLayout } from '../../components/layout/SupplierLayout';
 import { ErrorAlert } from '../../components/ui/ErrorAlert';
 import { LoadingSpinner } from '../../components/ui/LoadingSpinner';
 import { StatusBadge } from '../../components/ui/StatusBadge';
-import { Plus, X } from 'lucide-react';
+import { Plus, X, Trash2, ImagePlus } from 'lucide-react';
 
 export const ProductManagementPage = () => {
   const [products, setProducts] = useState<Product[]>([]);
@@ -30,6 +30,8 @@ export const ProductManagementPage = () => {
   });
 
   const [imageFiles, setImageFiles] = useState<FileList | null>(null);
+  const [existingImages, setExistingImages] = useState<any[]>([]);
+  const [removedImageIndices, setRemovedImageIndices] = useState<Set<number>>(new Set());
 
   useEffect(() => {
     fetchProducts();
@@ -81,6 +83,17 @@ export const ProductManagementPage = () => {
     try {
       if (editingProduct) {
         await productService.updateProduct(editingProduct.id, formData);
+
+        // Handle image removals
+        if (removedImageIndices.size > 0) {
+          const keptImages = existingImages.filter((_, i) => !removedImageIndices.has(i));
+          await productService.updateProductImages(editingProduct.id, keptImages);
+        }
+
+        // Upload new images (appends to existing)
+        if (imageFiles && imageFiles.length > 0) {
+          await productService.uploadImages(editingProduct.id, imageFiles);
+        }
       } else {
         const newProduct = await productService.createProduct(formData);
 
@@ -113,6 +126,9 @@ export const ProductManagementPage = () => {
       min_order_quantity: product.min_order_quantity,
       care_instructions: product.care_instructions || '',
     });
+    setExistingImages(Array.isArray(product.images) ? product.images : []);
+    setRemovedImageIndices(new Set());
+    setImageFiles(null);
     setShowForm(true);
   };
 
@@ -144,6 +160,8 @@ export const ProductManagementPage = () => {
     });
     setImageFiles(null);
     setEditingProduct(null);
+    setExistingImages([]);
+    setRemovedImageIndices(new Set());
   };
 
   return (
@@ -311,23 +329,81 @@ export const ProductManagementPage = () => {
                 />
               </div>
 
-              {!editingProduct && (
+              {/* Existing Images (shown during edit) */}
+              {editingProduct && existingImages.length > 0 && (
                 <div className="sm:col-span-2">
                   <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Product Images
+                    Current Images
                   </label>
-                  <input
-                    type="file"
-                    multiple
-                    accept="image/*"
-                    onChange={(e) => setImageFiles(e.target.files)}
-                    className="input-base"
-                  />
-                  <p className="text-xs text-gray-500 mt-1">
-                    Upload up to 10 images (JPG, PNG, WEBP)
-                  </p>
+                  <div className="flex flex-wrap gap-3">
+                    {existingImages.map((img, index) => {
+                      const isRemoved = removedImageIndices.has(index);
+                      const imgUrl = typeof img === 'string' ? img : img?.path || '';
+                      const backendUrl = import.meta.env.VITE_API_BASE_URL?.replace('/api/v1', '') || 'http://localhost:5000';
+                      const fullUrl = imgUrl.startsWith('http') ? imgUrl : `${backendUrl}${imgUrl}`;
+
+                      return (
+                        <div
+                          key={index}
+                          className={`relative group w-24 h-24 rounded-lg overflow-hidden border-2 ${
+                            isRemoved ? 'border-red-300 opacity-40' : 'border-gray-200'
+                          }`}
+                        >
+                          <img
+                            src={fullUrl}
+                            alt={`Product ${index + 1}`}
+                            className="w-full h-full object-cover"
+                          />
+                          <button
+                            type="button"
+                            onClick={() => {
+                              const newSet = new Set(removedImageIndices);
+                              if (isRemoved) {
+                                newSet.delete(index);
+                              } else {
+                                newSet.add(index);
+                              }
+                              setRemovedImageIndices(newSet);
+                            }}
+                            className={`absolute top-1 right-1 p-1 rounded-full shadow-sm transition-all ${
+                              isRemoved
+                                ? 'bg-green-500 hover:bg-green-600 text-white'
+                                : 'bg-red-500 hover:bg-red-600 text-white opacity-0 group-hover:opacity-100'
+                            }`}
+                          >
+                            {isRemoved ? <Plus className="w-3 h-3" /> : <Trash2 className="w-3 h-3" />}
+                          </button>
+                        </div>
+                      );
+                    })}
+                  </div>
+                  {removedImageIndices.size > 0 && (
+                    <p className="text-xs text-red-500 mt-2">
+                      {removedImageIndices.size} image(s) marked for removal
+                    </p>
+                  )}
                 </div>
               )}
+
+              {/* Image Upload (always visible) */}
+              <div className="sm:col-span-2">
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  <span className="flex items-center gap-1.5">
+                    <ImagePlus className="w-4 h-4" />
+                    {editingProduct ? 'Add New Images' : 'Product Images'}
+                  </span>
+                </label>
+                <input
+                  type="file"
+                  multiple
+                  accept="image/*"
+                  onChange={(e) => setImageFiles(e.target.files)}
+                  className="input-base"
+                />
+                <p className="text-xs text-gray-500 mt-1">
+                  Upload up to 10 images (JPG, PNG, WEBP)
+                </p>
+              </div>
             </div>
 
             <button

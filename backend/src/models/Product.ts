@@ -190,6 +190,11 @@ export class ProductModel {
       values.push(JSON.stringify(data.specifications));
     }
 
+    if (data.images !== undefined) {
+      fields.push(`images = $${paramCount++}`);
+      values.push(JSON.stringify(data.images));
+    }
+
     if (fields.length === 0) {
       throw new Error('No fields to update');
     }

@@ -207,6 +207,7 @@ export interface ProductUpdateInput {
   stock_quantity?: number;
   low_stock_threshold?: number;
   specifications?: any;
+  images?: any[];
 }
 
 // Express Request with User

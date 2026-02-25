@@ -92,6 +92,16 @@ export const productService = {
     }
   },
 
+  // Supplier: Update product images (for removal)
+  async updateProductImages(id: string, images: any[]): Promise<Product> {
+    try {
+      const response = await api.put<ApiResponse<Product>>(`/products/${id}`, { images });
+      return response.data.data!;
+    } catch (error) {
+      throw new Error(getErrorMessage(error));
+    }
+  },
+
   // Supplier: Delete product
   async deleteProduct(id: string): Promise<void> {
     try {

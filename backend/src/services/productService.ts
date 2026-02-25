@@ -108,14 +108,18 @@ export class ProductService {
       throw new AppError('You do not have permission to update this product', 403);
     }
 
-    const images = files.map(file => ({
+    const newImages = files.map(file => ({
       filename: file.filename,
       path: `/uploads/products/${file.filename}`,
       uploadedAt: new Date().toISOString(),
     }));
 
-    const updated = await ProductModel.uploadImages(id, images);
-    logger.info(`Product images uploaded: ${id}, count: ${files.length}`);
+    // Append new images to existing ones
+    const existingImages = Array.isArray(product.images) ? product.images : [];
+    const allImages = [...existingImages, ...newImages];
+
+    const updated = await ProductModel.uploadImages(id, allImages);
+    logger.info(`Product images uploaded: ${id}, new: ${files.length}, total: ${allImages.length}`);
     return updated;
   }
 
