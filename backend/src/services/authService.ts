@@ -6,6 +6,9 @@ import { isValidEmail } from '../utils/validators';
 import { AppError } from '../middleware/errorHandler';
 import { UserCreateInput, AuthTokens, JWTPayload, UserRole } from '../types';
 import logger from '../utils/logger';
+import sendMail from '../utils/sendMail';
+import { passwordResetTemplate, emailVerificationTemplate, welcomeTemplate } from '../utils/mailTemplates';
+import env from '../config/env';
 
 export class AuthService {
   // Register a new user
@@ -52,8 +55,30 @@ export class AuthService {
       verificationExpiry
     );
 
-    // TODO: Send verification email
-    logger.info(`Email verification token for ${user.email}: ${verificationToken}`);
+    // Send verification email
+    const verificationUrl = `${env.FRONTEND_URL}/verify-email?token=${verificationToken}`;
+    await sendMail({
+      to: user.email,
+      subject: 'Verify your eFlora account',
+      html: emailVerificationTemplate({
+        userName: data.first_name,
+        verificationToken,
+        verificationUrl,
+        expiryHours: 24,
+      }),
+    });
+
+    // Send welcome email
+    await sendMail({
+      to: user.email,
+      subject: 'Welcome to eFlora!',
+      html: welcomeTemplate({
+        userName: data.first_name,
+        role: data.role,
+      }),
+    });
+
+    logger.info(`Verification email sent to ${user.email}`);
 
     // Generate JWT tokens
     const tokens = generateTokens({
@@ -142,8 +167,20 @@ export class AuthService {
 
     await UserModel.setPasswordResetToken(user.id, resetToken, resetExpiry);
 
-    // TODO: Send password reset email
-    logger.info(`Password reset token for ${user.email}: ${resetToken}`);
+    // Send password reset email
+    const resetUrl = `${env.FRONTEND_URL}/reset-password?token=${resetToken}`;
+    await sendMail({
+      to: user.email,
+      subject: 'Reset your eFlora password',
+      html: passwordResetTemplate({
+        userName: user.first_name,
+        resetToken,
+        resetUrl,
+        expiryMinutes: 60,
+      }),
+    });
+
+    logger.info(`Password reset email sent to ${user.email}`);
   }
 
   // Reset password
@@ -267,7 +304,19 @@ export class AuthService {
       verificationExpiry
     );
 
-    // TODO: Send verification email
-    logger.info(`Verification email resent to: ${user.email}, token: ${verificationToken}`);
+    // Send verification email
+    const verificationUrl = `${env.FRONTEND_URL}/verify-email?token=${verificationToken}`;
+    await sendMail({
+      to: user.email,
+      subject: 'Verify your eFlora account',
+      html: emailVerificationTemplate({
+        userName: user.first_name,
+        verificationToken,
+        verificationUrl,
+        expiryHours: 24,
+      }),
+    });
+
+    logger.info(`Verification email resent to: ${user.email}`);
   }
 }

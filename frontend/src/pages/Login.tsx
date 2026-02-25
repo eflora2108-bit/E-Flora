@@ -39,7 +39,7 @@ export const LoginPage = () => {
             transition={{ duration: 0.6 }}
             className="text-center"
           >
-            <div className="bg-white rounded-2xl px-6 py-3 shadow-lg mb-6 inline-block">
+            <div className="bg-white rounded-2xl px-4 py-2 shadow-lg mb-6 inline-block">
               <img src="/Eflora.jpeg" alt="eFlora" className="h-14 w-auto object-contain" />
             </div>
             <h2 className="text-4xl font-bold mb-4">Welcome to eFlora</h2>
@@ -102,6 +102,12 @@ export const LoginPage = () => {
                   className="input-base pl-11"
                 />
               </div>
+            </div>
+
+            <div className="flex justify-end">
+              <Link to="/forgot-password" className="text-sm text-primary-600 font-medium hover:text-primary-700">
+                Forgot Password?
+              </Link>
             </div>
 
             <button

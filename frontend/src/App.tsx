@@ -10,6 +10,8 @@ import { HomePage } from './pages/Home/HomePage';
 // Auth Pages
 import { LoginPage } from './pages/Login';
 import { RegisterPage } from './pages/Register';
+import { ForgotPasswordPage } from './pages/ForgotPassword';
+import { ResetPasswordPage } from './pages/ResetPassword';
 
 // Product Pages
 import { ProductCatalogPage } from './pages/Products/ProductCatalog';
@@ -102,6 +104,22 @@ function App() {
               element={
                 <Layout showHeader={false} showFooter={false}>
                   <RegisterPage />
+                </Layout>
+              }
+            />
+            <Route
+              path="/forgot-password"
+              element={
+                <Layout showHeader={false} showFooter={false}>
+                  <ForgotPasswordPage />
+                </Layout>
+              }
+            />
+            <Route
+              path="/reset-password"
+              element={
+                <Layout showHeader={false} showFooter={false}>
+                  <ResetPasswordPage />
                 </Layout>
               }
             />
