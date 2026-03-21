@@ -39,8 +39,21 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
             setUser(freshUser);
             localStorage.setItem('user', JSON.stringify(freshUser));
           } catch (error) {
-            // Token might be expired, let interceptor handle it
-            console.error('Error refreshing user:', error);
+            // Token might be expired or invalid
+            // If unauthorized, clear stored credentials to avoid inconsistent state
+            try {
+              const err: any = error;
+              if (err?.response?.status === 401) {
+                localStorage.removeItem('accessToken');
+                localStorage.removeItem('refreshToken');
+                localStorage.removeItem('user');
+                setUser(null);
+              } else {
+                console.error('Error refreshing user:', error);
+              }
+            } catch {
+              console.error('Error refreshing user:', error);
+            }
           }
         }
       } catch (error) {

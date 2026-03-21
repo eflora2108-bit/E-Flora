@@ -13,6 +13,7 @@ import {
   Bell,
 } from 'lucide-react';
 import { notificationService } from '../../services/notificationService';
+import { useAuth } from '../../contexts/AuthContext';
 import { Notification, NotificationType } from '../../types';
 import { toast } from 'react-hot-toast';
 
@@ -30,6 +31,8 @@ const NotificationDropdown: React.FC<NotificationDropdownProps> = ({
   const [page, setPage] = useState(1);
   const [hasMore, setHasMore] = useState(false);
   const navigate = useNavigate();
+  const { isAuthenticated } = useAuth();
+  const notifList = notifications ?? [];
 
   useEffect(() => {
     fetchNotifications();
@@ -37,6 +40,11 @@ const NotificationDropdown: React.FC<NotificationDropdownProps> = ({
 
   const fetchNotifications = async () => {
     try {
+      if (!isAuthenticated) {
+        setNotifications([]);
+        setLoading(false);
+        return;
+      }
       setLoading(true);
       const data = await notificationService.getNotifications(page, 10);
       if (page === 1) {
@@ -46,7 +54,7 @@ const NotificationDropdown: React.FC<NotificationDropdownProps> = ({
       }
       setHasMore(data.pagination.page < data.pagination.totalPages);
     } catch (error: any) {
-      toast.error(error.response?.data?.message || 'Failed to load notifications');
+      toast.error(error?.message || 'Failed to load notifications');
     } finally {
       setLoading(false);
     }
@@ -60,7 +68,7 @@ const NotificationDropdown: React.FC<NotificationDropdownProps> = ({
       );
       onNotificationRead();
     } catch (error: any) {
-      toast.error(error.response?.data?.message || 'Failed to mark as read');
+      toast.error(error?.message || 'Failed to mark as read');
     }
   };
 
@@ -71,7 +79,7 @@ const NotificationDropdown: React.FC<NotificationDropdownProps> = ({
       onNotificationRead();
       toast.success('All notifications marked as read');
     } catch (error: any) {
-      toast.error(error.response?.data?.message || 'Failed to mark all as read');
+      toast.error(error?.message || 'Failed to mark all as read');
     }
   };
 
@@ -82,7 +90,7 @@ const NotificationDropdown: React.FC<NotificationDropdownProps> = ({
       onNotificationRead();
       toast.success('Notification deleted');
     } catch (error: any) {
-      toast.error(error.response?.data?.message || 'Failed to delete notification');
+      toast.error(error?.message || 'Failed to delete notification');
     }
   };
 
@@ -97,7 +105,7 @@ const NotificationDropdown: React.FC<NotificationDropdownProps> = ({
       onNotificationRead();
       toast.success('All notifications deleted');
     } catch (error: any) {
-      toast.error(error.response?.data?.message || 'Failed to delete all notifications');
+      toast.error(error?.message || 'Failed to delete all notifications');
     }
   };
 
@@ -153,7 +161,7 @@ const NotificationDropdown: React.FC<NotificationDropdownProps> = ({
       <div className="px-4 py-3 border-b border-gray-200 flex items-center justify-between">
         <h3 className="font-semibold text-gray-900">Notifications</h3>
         <div className="flex items-center gap-2">
-          {notifications.some((n) => !n.is_read) && (
+          {notifList.some((n) => !n.is_read) && (
             <button
               onClick={handleMarkAllAsRead}
               className="text-xs text-blue-600 hover:text-blue-700"
@@ -162,7 +170,7 @@ const NotificationDropdown: React.FC<NotificationDropdownProps> = ({
               <CheckCheck className="w-4 h-4" />
             </button>
           )}
-          {notifications.length > 0 && (
+          {notifList.length > 0 && (
             <button
               onClick={handleClearAll}
               className="text-xs text-red-600 hover:text-red-700"
@@ -182,19 +190,19 @@ const NotificationDropdown: React.FC<NotificationDropdownProps> = ({
       </div>
 
       {/* Notifications List */}
-      <div className="flex-1 overflow-y-auto">
-        {loading && notifications.length === 0 ? (
+        <div className="flex-1 overflow-y-auto">
+        {loading && notifList.length === 0 ? (
           <div className="flex justify-center items-center py-12">
             <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-green-600"></div>
           </div>
-        ) : notifications.length === 0 ? (
+        ) : notifList.length === 0 ? (
           <div className="text-center py-12 text-gray-500">
             <Bell className="w-12 h-12 mx-auto mb-3 text-gray-300" />
             <p>No notifications</p>
           </div>
         ) : (
           <div className="divide-y divide-gray-100">
-            {notifications.map((notification) => (
+            {notifList.map((notification) => (
               <div
                 key={notification.id}
                 className={`

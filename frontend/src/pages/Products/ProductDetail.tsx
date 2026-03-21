@@ -11,6 +11,24 @@ import { wishlistService } from '../../services/wishlistService';
 import { toast } from 'react-hot-toast';
 import { LoadingSpinner } from '../../components/ui/LoadingSpinner';
 
+type PotType = 'round' | 'square';
+type PotSize = 'small' | 'medium' | 'large';
+
+const POT_PRICING: Record<PotType, Record<PotSize, number>> = {
+  round: {
+    small: 40,
+    medium: 80,
+    large: 130,
+  },
+  square: {
+    small: 50,
+    medium: 95,
+    large: 150,
+  },
+};
+
+const SOIL_PRICE_PER_100_GM = 30;
+
 export const ProductDetailPage = () => {
   const { slug } = useParams<{ slug: string }>();
   const navigate = useNavigate();
@@ -24,6 +42,11 @@ export const ProductDetailPage = () => {
   const [isInWishlist, setIsInWishlist] = useState(false);
   const [wishlistLoading, setWishlistLoading] = useState(false);
   const [reviewRefreshKey, setReviewRefreshKey] = useState(0);
+  const [addPot, setAddPot] = useState(false);
+  const [potType, setPotType] = useState<PotType>('round');
+  const [potSize, setPotSize] = useState<PotSize>('small');
+  const [extraSoil, setExtraSoil] = useState(false);
+  const [soilQuantity, setSoilQuantity] = useState(100);
 
   useEffect(() => {
     if (slug) {
@@ -39,6 +62,7 @@ export const ProductDetailPage = () => {
     try {
       const data = await productService.getBySlug(slug);
       setProduct(data);
+      setQuantity(data.min_order_quantity || 1);
     } catch (err: any) {
       setError(err.message);
     } finally {
@@ -47,6 +71,13 @@ export const ProductDetailPage = () => {
   };
 
   const { addToCart } = useCart();
+
+  const potUnitPrice = addPot ? POT_PRICING[potType][potSize] : 0;
+  const baseUnitPrice = Number(product?.price || 0);
+  const customizedUnitPrice = baseUnitPrice + potUnitPrice;
+  const productTotal = customizedUnitPrice * quantity;
+  const soilTotal = extraSoil ? (soilQuantity / 100) * SOIL_PRICE_PER_100_GM : 0;
+  const grandTotal = productTotal + soilTotal;
 
   const handleAddToCart = async () => {
     if (!product) return;
@@ -57,7 +88,9 @@ export const ProductDetailPage = () => {
     }
     try {
       await addToCart(product.id, quantity);
-      toast.success(`${quantity} x ${product.name} added to cart!`);
+      toast.success(
+        `${quantity} x ${product.name} added to cart. ${addPot ? `Pot: ${potType} ${potSize}. ` : ''}Total: ₹${grandTotal.toFixed(2)}`
+      );
     } catch (err: any) {
       toast.error(err.message || 'Failed to add to cart');
     }
@@ -228,12 +261,12 @@ export const ProductDetailPage = () => {
 
               {/* Quantity Selector */}
               {product.stock_quantity > 0 && (
-                <div className="mb-6">
-                  <label className="block mb-2 font-semibold text-gray-700">Quantity</label>
-                  <div className="flex items-center gap-2">
+                <div className="mb-6 rounded-2xl border border-gray-200 bg-white p-4 shadow-sm">
+                  <label className="block mb-3 font-semibold text-gray-800">Quantity</label>
+                  <div className="flex flex-wrap items-center gap-3">
                     <button
                       onClick={() => setQuantity((q) => Math.max(product.min_order_quantity, q - 1))}
-                      className="w-10 h-10 bg-gray-100 border-none rounded-lg cursor-pointer text-xl font-medium hover:bg-gray-200 transition-colors"
+                      className="w-11 h-11 rounded-xl bg-gray-100 text-xl font-semibold text-gray-700 hover:bg-gray-200 transition-colors"
                     >
                       -
                     </button>
@@ -250,17 +283,164 @@ export const ProductDetailPage = () => {
                       }
                       min={product.min_order_quantity}
                       max={product.stock_quantity}
-                      className="w-20 py-2 text-center border border-gray-300 rounded-lg text-lg input-base"
+                      className="w-24 py-2.5 text-center border border-gray-300 rounded-xl text-lg font-semibold"
                     />
                     <button
                       onClick={() => setQuantity((q) => Math.min(product.stock_quantity, q + 1))}
-                      className="w-10 h-10 bg-gray-100 border-none rounded-lg cursor-pointer text-xl font-medium hover:bg-gray-200 transition-colors"
+                      className="w-11 h-11 rounded-xl bg-gray-100 text-xl font-semibold text-gray-700 hover:bg-gray-200 transition-colors"
                     >
                       +
                     </button>
-                    <span className="ml-4 text-gray-500 text-sm">
+                    <span className="ml-1 inline-flex items-center rounded-full bg-gray-100 px-3 py-1 text-sm text-gray-600">
                       Min order: {product.min_order_quantity}
                     </span>
+                  </div>
+                </div>
+              )}
+
+              {/* Pot Customization */}
+              {product.stock_quantity > 0 && (
+                <div className="mb-6 rounded-2xl border border-emerald-100 bg-gradient-to-br from-emerald-50 to-white p-5 shadow-sm">
+                  <div className="mb-4 flex items-center justify-between gap-4">
+                    <h3 className="font-semibold text-gray-800">Pot Options</h3>
+                    <button
+                      type="button"
+                      onClick={() => setAddPot((v) => !v)}
+                      className={`relative inline-flex h-7 w-12 items-center rounded-full transition-colors ${
+                        addPot ? 'bg-primary-600' : 'bg-gray-300'
+                      }`}
+                      aria-label="Toggle pot option"
+                    >
+                      <span
+                        className={`inline-block h-5 w-5 transform rounded-full bg-white transition-transform ${
+                          addPot ? 'translate-x-6' : 'translate-x-1'
+                        }`}
+                      />
+                    </button>
+                  </div>
+
+                  <p className="text-sm text-gray-600 mb-4">Choose pot shape and size to style your plant.</p>
+
+                  <div className={`${!addPot ? 'opacity-50 pointer-events-none' : ''}`}>
+                    <div className="mb-4">
+                      <label className="block text-sm font-medium text-gray-700 mb-2">Pot Type</label>
+                      <div className="grid grid-cols-2 gap-2">
+                      {(['round', 'square'] as PotType[]).map((type) => (
+                        <button
+                          key={type}
+                          type="button"
+                          onClick={() => setPotType(type)}
+                          disabled={!addPot}
+                          className={`px-4 py-2.5 rounded-xl text-sm font-semibold border transition-all capitalize ${
+                            potType === type
+                              ? 'bg-primary-600 text-white border-primary-600 shadow-sm'
+                              : 'bg-white text-gray-700 border-gray-300 hover:border-primary-400'
+                          }`}
+                        >
+                          {type}
+                        </button>
+                      ))}
+                      </div>
+                    </div>
+
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-2">Pot Size</label>
+                      <div className="grid grid-cols-3 gap-2">
+                      {(['small', 'medium', 'large'] as PotSize[]).map((size) => (
+                        <button
+                          key={size}
+                          type="button"
+                          onClick={() => setPotSize(size)}
+                          disabled={!addPot}
+                          className={`px-3 py-2.5 rounded-xl text-sm font-semibold border transition-all capitalize ${
+                            potSize === size
+                              ? 'bg-primary-600 text-white border-primary-600 shadow-sm'
+                              : 'bg-white text-gray-700 border-gray-300 hover:border-primary-400'
+                          }`}
+                        >
+                          <div>{size}</div>
+                          <div className={`text-xs ${potSize === size ? 'text-white/90' : 'text-gray-500'}`}>
+                            +₹{POT_PRICING[potType][size]}
+                          </div>
+                        </button>
+                      ))}
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              )}
+
+              {/* Extra Soil */}
+              {product.stock_quantity > 0 && (
+                <div className="mb-6 rounded-2xl border border-amber-100 bg-gradient-to-br from-amber-50 to-white p-5 shadow-sm">
+                  <div className="flex items-center justify-between gap-4 mb-2">
+                    <div>
+                      <h3 className="font-semibold text-gray-800">Extra Soil</h3>
+                      <p className="text-sm text-gray-600">100 gm = ₹30</p>
+                    </div>
+                    <button
+                      type="button"
+                      onClick={() => setExtraSoil((v) => !v)}
+                      className={`relative inline-flex h-7 w-12 items-center rounded-full transition-colors ${
+                        extraSoil ? 'bg-primary-600' : 'bg-gray-300'
+                      }`}
+                      aria-label="Toggle extra soil"
+                    >
+                      <span
+                        className={`inline-block h-5 w-5 transform rounded-full bg-white transition-transform ${
+                          extraSoil ? 'translate-x-6' : 'translate-x-1'
+                        }`}
+                      />
+                    </button>
+                  </div>
+
+                  {extraSoil && (
+                    <div className="mt-4 rounded-xl bg-white border border-amber-100 p-3">
+                      <div className="flex items-center justify-between text-sm text-gray-600 mb-2">
+                        <span>100 gm</span>
+                        <span>2000 gm</span>
+                      </div>
+                      <input
+                        type="range"
+                        min={100}
+                        max={2000}
+                        step={100}
+                        value={soilQuantity}
+                        onChange={(e) => setSoilQuantity(parseInt(e.target.value, 10))}
+                        className="w-full"
+                      />
+                      <div className="mt-3 flex items-center justify-between">
+                        <span className="inline-flex rounded-full bg-amber-100 px-3 py-1 text-sm font-medium text-amber-800">
+                          {soilQuantity} gm
+                        </span>
+                        <span className="text-sm font-semibold text-gray-700">+₹{soilTotal.toFixed(2)}</span>
+                      </div>
+                    </div>
+                  )}
+                </div>
+              )}
+
+              {/* Price Breakdown */}
+              {product.stock_quantity > 0 && (
+                <div className="mb-6 rounded-2xl border border-primary-100 bg-gradient-to-r from-primary-50 to-emerald-50 p-5 shadow-sm">
+                  <h3 className="font-semibold text-gray-800 mb-3">Price Summary</h3>
+                  <div className="space-y-2 text-sm text-gray-700">
+                    <div className="flex justify-between">
+                      <span>Plant ({quantity} x ₹{baseUnitPrice.toFixed(2)})</span>
+                      <span>₹{(baseUnitPrice * quantity).toFixed(2)}</span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span>Pot {addPot ? `(${potType}, ${potSize})` : '(not selected)'}</span>
+                      <span>₹{(potUnitPrice * quantity).toFixed(2)}</span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span>Extra soil</span>
+                      <span>₹{soilTotal.toFixed(2)}</span>
+                    </div>
+                    <div className="flex justify-between font-bold text-lg text-primary-700 pt-2 mt-2 border-t border-primary-200">
+                      <span>Grand Total</span>
+                      <span>₹{grandTotal.toFixed(2)}</span>
+                    </div>
                   </div>
                 </div>
               )}

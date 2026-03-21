@@ -72,4 +72,14 @@ export const cartService = {
       throw new Error(getErrorMessage(error));
     }
   },
+
+  // Admin: Get all carts (for admin dashboard)
+  async getAllCarts(): Promise<any[]> {
+    try {
+      const response = await api.get<ApiResponse<any[]>>('/admin/carts');
+      return response.data.data || [];
+    } catch (error) {
+      throw new Error(getErrorMessage(error));
+    }
+  },
 };

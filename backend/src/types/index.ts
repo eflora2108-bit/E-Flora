@@ -493,6 +493,7 @@ export enum NotificationType {
   ORDER_CONFIRMED = 'order_confirmed',
   ORDER_SHIPPED = 'order_shipped',
   ORDER_DELIVERED = 'order_delivered',
+  ORDER_CANCELLED = 'order_cancelled',
   PRODUCT_APPROVED = 'product_approved',
   PRODUCT_REJECTED = 'product_rejected',
   SUPPLIER_APPROVED = 'supplier_approved',

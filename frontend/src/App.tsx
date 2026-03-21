@@ -3,6 +3,7 @@ import { Toaster } from 'react-hot-toast';
 import { AuthProvider } from './contexts/AuthContext';
 import { CartProvider } from './contexts/CartContext';
 import Layout from './components/layout/Layout';
+import ErrorBoundary from './components/common/ErrorBoundary';
 
 // Home
 import { HomePage } from './pages/Home/HomePage';
@@ -35,6 +36,7 @@ import { ProfilePage } from './pages/Profile/ProfilePage';
 
 // Admin Pages
 import { AdminDashboardPage } from './pages/admin/Dashboard';
+import { CartsOverviewPage } from './pages/admin/CartsOverview';
 import { ProductModerationPage } from './pages/admin/ProductModeration';
 import { AdminSupplierVerification } from './pages/admin/SupplierVerification';
 import { OrderManagementPage } from './pages/admin/OrderManagement';
@@ -51,10 +53,11 @@ import { ProtectedRoute } from './components/ProtectedRoute';
 
 function App() {
   return (
-    <BrowserRouter future={{ v7_startTransition: true, v7_relativeSplatPath: true }}>
-      <AuthProvider>
-        <CartProvider>
-          <Toaster
+    <ErrorBoundary>
+      <BrowserRouter future={{ v7_startTransition: true, v7_relativeSplatPath: true }}>
+        <AuthProvider>
+          <CartProvider>
+            <Toaster
             position="top-right"
             toastOptions={{
               duration: 3000,
@@ -242,6 +245,14 @@ function App() {
               }
             />
             <Route
+              path="/admin/carts"
+              element={
+                <ProtectedRoute requireAdmin>
+                  <CartsOverviewPage />
+                </ProtectedRoute>
+              }
+            />
+            <Route
               path="/admin/products/pending"
               element={
                 <ProtectedRoute requireAdmin>
@@ -310,10 +321,11 @@ function App() {
 
             {/* Fallback */}
             <Route path="*" element={<Navigate to="/" replace />} />
-          </Routes>
-        </CartProvider>
-      </AuthProvider>
-    </BrowserRouter>
+            </Routes>
+          </CartProvider>
+        </AuthProvider>
+      </BrowserRouter>
+    </ErrorBoundary>
   );
 }
 

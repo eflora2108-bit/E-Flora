@@ -7,7 +7,8 @@ import { InventoryService } from './inventoryService';
 import { CartService } from './cartService';
 import { PaymentService } from './paymentService';
 import { InvoiceService } from './invoiceService';
-import { Order, OrderStatus, PaymentStatus } from '../types';
+import { NotificationModel } from '../models/Notification';
+import { Order, OrderStatus, PaymentStatus, NotificationType } from '../types';
 import { AppError } from '../middleware/errorHandler';
 
 export class OrderService {
@@ -203,6 +204,18 @@ export class OrderService {
       console.error('Failed to generate invoice:', error);
     }
 
+    try {
+      await NotificationModel.create({
+        user_id: confirmedOrder.user_id,
+        type: NotificationType.ORDER_CONFIRMED,
+        title: 'Order Confirmed',
+        message: `Your order ${confirmedOrder.order_number} has been confirmed.`,
+        link: `/orders/${confirmedOrder.id}`,
+      });
+    } catch (error) {
+      console.error('Failed to create order confirmation notification:', error);
+    }
+
     return confirmedOrder;
   }
 
@@ -251,7 +264,7 @@ export class OrderService {
       throw new AppError('Order already cancelled', 400);
     }
 
-    return transaction(async (client: PoolClient) => {
+    const cancelledOrder = await transaction(async (client: PoolClient) => {
       // Update order status
       const sql = `
         UPDATE orders
@@ -279,5 +292,19 @@ export class OrderService {
 
       return cancelledOrder;
     });
+
+    try {
+      await NotificationModel.create({
+        user_id: order.user_id,
+        type: NotificationType.ORDER_CANCELLED,
+        title: 'Order Cancelled',
+        message: `Your order ${order.order_number} has been cancelled.`,
+        link: `/orders/${order.id}`,
+      });
+    } catch (error) {
+      console.error('Failed to create order cancellation notification:', error);
+    }
+
+    return cancelledOrder;
   }
 }

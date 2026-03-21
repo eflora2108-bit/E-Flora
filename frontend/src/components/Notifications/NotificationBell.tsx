@@ -2,18 +2,22 @@ import React, { useState, useEffect, useRef } from 'react';
 import { Bell } from 'lucide-react';
 import NotificationDropdown from './NotificationDropdown';
 import { notificationService } from '../../services/notificationService';
+import { useAuth } from '../../contexts/AuthContext';
 
 const NotificationBell: React.FC = () => {
   const [isOpen, setIsOpen] = useState(false);
   const [unreadCount, setUnreadCount] = useState(0);
   const dropdownRef = useRef<HTMLDivElement>(null);
+  const { isAuthenticated } = useAuth();
 
   useEffect(() => {
-    fetchUnreadCount();
-    // Poll for new notifications every 2 minutes
-    const interval = setInterval(fetchUnreadCount, 120000);
-    return () => clearInterval(interval);
-  }, []);
+    if (isAuthenticated) {
+      fetchUnreadCount();
+      // Poll for new notifications every 2 minutes
+      const interval = setInterval(fetchUnreadCount, 120000);
+      return () => clearInterval(interval);
+    }
+  }, [isAuthenticated]);
 
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {

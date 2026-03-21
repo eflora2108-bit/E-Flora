@@ -6,7 +6,9 @@ import { SupplierLayout } from '../../components/layout/SupplierLayout';
 import { ErrorAlert } from '../../components/ui/ErrorAlert';
 import { LoadingSpinner } from '../../components/ui/LoadingSpinner';
 import { StatusBadge } from '../../components/ui/StatusBadge';
-import { Plus, X, Trash2, ImagePlus } from 'lucide-react';
+import { Plus, X, Trash2, ImagePlus, ShoppingCart } from 'lucide-react';
+import { toast } from 'react-hot-toast';
+import { useCart } from '../../contexts/CartContext';
 
 export const ProductManagementPage = () => {
   const [products, setProducts] = useState<Product[]>([]);
@@ -16,6 +18,7 @@ export const ProductManagementPage = () => {
   const [showForm, setShowForm] = useState(false);
   const [editingProduct, setEditingProduct] = useState<Product | null>(null);
   const [statusFilter, setStatusFilter] = useState<string>('all');
+  const { addToCart } = useCart();
 
   const [formData, setFormData] = useState<ProductFormData>({
     category_id: '',
@@ -162,6 +165,15 @@ export const ProductManagementPage = () => {
     setEditingProduct(null);
     setExistingImages([]);
     setRemovedImageIndices(new Set());
+  };
+
+  const handleAddToCart = async (productId: string) => {
+    try {
+      await addToCart(productId, 1);
+      toast.success('Added to cart');
+    } catch (err: any) {
+      toast.error(err?.message || 'Failed to add to cart');
+    }
   };
 
   return (
@@ -496,6 +508,16 @@ export const ProductManagementPage = () => {
                           className="btn-danger text-xs px-3 py-1.5"
                         >
                           Delete
+                        </button>
+                        <button
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            handleAddToCart(product.id);
+                          }}
+                          className="btn-ghost text-xs px-3 py-1.5" 
+                          title="Add to Cart"
+                        >
+                          <ShoppingCart className="w-4 h-4" />
                         </button>
                       </div>
                     </td>

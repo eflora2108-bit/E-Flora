@@ -90,20 +90,18 @@ const Header: React.FC = () => {
                   <Heart className="w-5 h-5" />
                 </Link>
 
-                {user?.role === 'customer' && (
-                  <Link
-                    to="/cart"
-                    className="relative p-2 text-gray-500 hover:text-primary-600 hover:bg-primary-50 rounded-xl transition-all"
-                    aria-label="Cart"
-                  >
-                    <ShoppingCart className="w-5 h-5" />
-                    {cartCount > 0 && (
-                      <span className="absolute -top-0.5 -right-0.5 inline-flex items-center justify-center w-5 h-5 text-[10px] font-bold text-white bg-red-500 rounded-full">
-                        {cartCount > 99 ? '99+' : cartCount}
-                      </span>
-                    )}
-                  </Link>
-                )}
+                <Link
+                  to="/cart"
+                  className="relative p-2 text-gray-500 hover:text-primary-600 hover:bg-primary-50 rounded-xl transition-all"
+                  aria-label="Cart"
+                >
+                  <ShoppingCart className="w-5 h-5" />
+                  {cartCount > 0 && (
+                    <span className="absolute -top-0.5 -right-0.5 inline-flex items-center justify-center w-5 h-5 text-[10px] font-bold text-white bg-red-500 rounded-full">
+                      {cartCount > 99 ? '99+' : cartCount}
+                    </span>
+                  )}
+                </Link>
 
                 {/* User Menu */}
                 <div className="relative group ml-1">

@@ -2,7 +2,8 @@ import { Request, Response, NextFunction } from 'express';
 import { OrderService } from '../services/orderService';
 import { OrderModel, OrderItemModel } from '../models/Order';
 import { SupplierModel } from '../models/Supplier';
-import { OrderStatus } from '../types';
+import { NotificationModel } from '../models/Notification';
+import { OrderStatus, NotificationType } from '../types';
 import { AppError } from '../middleware/errorHandler';
 
 export class OrderController {
@@ -147,6 +148,11 @@ export class OrderController {
         throw new AppError('Status is required', 400);
       }
 
+      const existingOrder = await OrderModel.findById(id);
+      if (!existingOrder) {
+        throw new AppError('Order not found', 404);
+      }
+
       const updates: any = { status };
 
       if (status === OrderStatus.SHIPPED && tracking_number) {
@@ -159,6 +165,48 @@ export class OrderController {
       }
 
       const order = await OrderModel.update(id, updates);
+
+      if (existingOrder.status !== status) {
+        let type: NotificationType | null = null;
+        let title = 'Order Status Updated';
+        let message = `Your order ${existingOrder.order_number} is now ${status}.`;
+
+        if (status === OrderStatus.CONFIRMED) {
+          type = NotificationType.ORDER_CONFIRMED;
+          title = 'Order Confirmed';
+          message = `Your order ${existingOrder.order_number} has been confirmed.`;
+        }
+
+        if (status === OrderStatus.SHIPPED) {
+          type = NotificationType.ORDER_SHIPPED;
+          title = 'Order Shipped';
+          message = tracking_number
+            ? `Your order ${existingOrder.order_number} has been shipped. Tracking number: ${tracking_number}`
+            : `Your order ${existingOrder.order_number} has been shipped.`;
+        }
+
+        if (status === OrderStatus.DELIVERED) {
+          type = NotificationType.ORDER_DELIVERED;
+          title = 'Order Delivered';
+          message = `Your order ${existingOrder.order_number} has been delivered.`;
+        }
+
+        if (status === OrderStatus.CANCELLED) {
+          type = NotificationType.ORDER_CANCELLED;
+          title = 'Order Cancelled';
+          message = `Your order ${existingOrder.order_number} has been cancelled.`;
+        }
+
+        if (type) {
+          await NotificationModel.create({
+            user_id: existingOrder.user_id,
+            type,
+            title,
+            message,
+            link: `/orders/${existingOrder.id}`,
+          });
+        }
+      }
 
       res.status(200).json({
         success: true,

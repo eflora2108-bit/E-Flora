@@ -6,7 +6,9 @@ import { LoadingSpinner } from '../../components/ui/LoadingSpinner';
 import { ErrorAlert } from '../../components/ui/ErrorAlert';
 import { EmptyState } from '../../components/ui/EmptyState';
 import { Modal } from '../../components/ui/Modal';
-import { CheckCircle, XCircle } from 'lucide-react';
+import { CheckCircle, XCircle, ShoppingCart } from 'lucide-react';
+import { toast } from 'react-hot-toast';
+import { useCart } from '../../contexts/CartContext';
 
 export const ProductModerationPage = () => {
   const [products, setProducts] = useState<Product[]>([]);
@@ -15,6 +17,7 @@ export const ProductModerationPage = () => {
   const [error, setError] = useState('');
   const [rejectionReason, setRejectionReason] = useState('');
   const [showRejectModal, setShowRejectModal] = useState(false);
+  const { addToCart } = useCart();
 
   useEffect(() => {
     fetchPendingProducts();
@@ -73,6 +76,15 @@ export const ProductModerationPage = () => {
     }
   };
 
+  const handleCartIcon = async (pid: string) => {
+    try {
+      await addToCart(pid, 1);
+      toast.success('Added to cart');
+    } catch (err: any) {
+      toast.error(err?.message || 'Failed to add to cart');
+    }
+  };
+
   return (
     <AdminLayout title="Product Moderation" subtitle="Review and approve product listings">
       {error && <ErrorAlert message={error} onDismiss={() => setError('')} />}
@@ -111,6 +123,18 @@ export const ProductModerationPage = () => {
                   </div>
                   <div className="text-sm font-semibold text-primary-700 mt-2">
                     ₹{Number(product.price).toFixed(2)}
+                  </div>
+                  <div className="mt-2 flex items-center gap-2">
+                    <button
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        handleCartIcon(product.id);
+                      }}
+                      className="px-2 py-1 rounded bg-green-50 border border-green-200 text-green-700 text-xs"
+                      title="Add to Cart"
+                    >
+                      <ShoppingCart className="w-4 h-4" />
+                    </button>
                   </div>
                 </div>
               ))}
