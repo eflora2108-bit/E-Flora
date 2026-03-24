@@ -7,10 +7,34 @@ import {
 } from '../types';
 
 export class ProductModel {
+  private static toSlug(name: string): string {
+    return name
+      .toLowerCase()
+      .trim()
+      .replace(/[^a-z0-9]+/g, '-')
+      .replace(/^-+|-+$/g, '');
+  }
+
+  private static async generateUniqueSlug(name: string): Promise<string> {
+    const baseSlug = this.toSlug(name) || `product-${Date.now()}`;
+    let candidate = baseSlug;
+    let suffix = 1;
+
+    while (true) {
+      const checkSql = 'SELECT 1 FROM products WHERE slug = $1 LIMIT 1';
+      const exists = await query(checkSql, [candidate]);
+      if (exists.rowCount === 0) {
+        return candidate;
+      }
+      suffix += 1;
+      candidate = `${baseSlug}-${suffix}`;
+    }
+  }
+
   // Create product
   static async create(data: ProductCreateInput): Promise<Product> {
-    // Generate slug from name
-    const slug = data.name.toLowerCase().replace(/[^a-z0-9]+/g, '-');
+    // Generate unique slug from name
+    const slug = await this.generateUniqueSlug(data.name);
 
     // Generate SKU if not provided
     const sku = `PRD-${Date.now()}-${Math.floor(Math.random() * 1000)}`;
@@ -278,6 +302,18 @@ export class ProductModel {
   static async delete(id: string): Promise<void> {
     const sql = 'DELETE FROM products WHERE id = $1';
     await query(sql, [id]);
+  }
+
+  // Soft delete (deactivate) product
+  static async deactivate(id: string): Promise<Product> {
+    const sql = `
+      UPDATE products
+      SET is_active = false, updated_at = NOW()
+      WHERE id = $1
+      RETURNING *
+    `;
+    const result = await query(sql, [id]);
+    return result.rows[0];
   }
 
   // Update stock

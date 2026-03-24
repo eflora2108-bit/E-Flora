@@ -24,8 +24,12 @@ export class NotificationController {
           totalPages: Math.ceil(total / limit),
         },
       });
-    } catch (error) {
-      next(error);
+    } catch (error: any) {
+      // Gracefully degrade on DB connectivity errors
+      if (error?.code === 'ENOTFOUND' || error?.code === 'ECONNRESET' || error?.errno === -3008) {
+        return res.json({ success: true, data: [], unreadCount: 0, pagination: { page: 1, limit: 20, total: 0, totalPages: 0 } });
+      }
+      return next(error);
     }
   }
 
@@ -39,8 +43,12 @@ export class NotificationController {
         success: true,
         data: { count },
       });
-    } catch (error) {
-      next(error);
+    } catch (error: any) {
+      // Return 0 count gracefully on transient DB errors
+      if (error?.code === 'ENOTFOUND' || error?.code === 'ECONNRESET' || error?.errno === -3008) {
+        return res.json({ success: true, data: { count: 0 } });
+      }
+      return next(error);
     }
   }
 

@@ -32,7 +32,7 @@ export const ProductManagementPage = () => {
     care_instructions: '',
   });
 
-  const [imageFiles, setImageFiles] = useState<FileList | null>(null);
+  const [imageFiles, setImageFiles] = useState<File[]>([]);
   const [existingImages, setExistingImages] = useState<any[]>([]);
   const [removedImageIndices, setRemovedImageIndices] = useState<Set<number>>(new Set());
 
@@ -47,7 +47,12 @@ export const ProductManagementPage = () => {
     try {
       const params = statusFilter !== 'all' ? { moderation_status: statusFilter } : {};
       const { products: data } = await productService.getMyProducts(params);
-      setProducts(data);
+      const normalized = (data || []).map((p: any) => ({
+        ...p,
+        min_order_quantity: p.min_order_quantity ?? p.minimum_order_quantity ?? 1,
+        mrp: p.mrp ?? 0,
+      }));
+      setProducts(normalized);
     } catch (err: any) {
       setError(err.message);
     } finally {
@@ -94,14 +99,14 @@ export const ProductManagementPage = () => {
         }
 
         // Upload new images (appends to existing)
-        if (imageFiles && imageFiles.length > 0) {
+        if (imageFiles.length > 0) {
           await productService.uploadImages(editingProduct.id, imageFiles);
         }
       } else {
         const newProduct = await productService.createProduct(formData);
 
         // Upload images if provided
-        if (imageFiles && imageFiles.length > 0) {
+        if (imageFiles.length > 0) {
           await productService.uploadImages(newProduct.id, imageFiles);
         }
       }
@@ -117,21 +122,22 @@ export const ProductManagementPage = () => {
   };
 
   const handleEdit = (product: Product) => {
+    const productAny = product as any;
     setEditingProduct(product);
     setFormData({
-      category_id: product.category_id,
-      name: product.name,
+      category_id: product.category_id || '',
+      name: product.name || '',
       description: product.description || '',
-      price: product.price,
-      mrp: product.mrp,
-      gst_percentage: product.gst_percentage,
-      stock_quantity: product.stock_quantity,
-      min_order_quantity: product.min_order_quantity,
+      price: Number(product.price ?? 0),
+      mrp: Number(product.mrp ?? 0),
+      gst_percentage: Number(product.gst_percentage ?? 0),
+      stock_quantity: Number(product.stock_quantity ?? 0),
+      min_order_quantity: Number(productAny.min_order_quantity ?? productAny.minimum_order_quantity ?? 1),
       care_instructions: product.care_instructions || '',
     });
     setExistingImages(Array.isArray(product.images) ? product.images : []);
     setRemovedImageIndices(new Set());
-    setImageFiles(null);
+    setImageFiles([]);
     setShowForm(true);
   };
 
@@ -161,7 +167,7 @@ export const ProductManagementPage = () => {
       min_order_quantity: 1,
       care_instructions: '',
     });
-    setImageFiles(null);
+    setImageFiles([]);
     setEditingProduct(null);
     setExistingImages([]);
     setRemovedImageIndices(new Set());
@@ -408,12 +414,12 @@ export const ProductManagementPage = () => {
                 <input
                   type="file"
                   multiple
-                  accept="image/*"
-                  onChange={(e) => setImageFiles(e.target.files)}
+                  accept=".jpg,.jpeg,.png,.webp"
+                  onChange={(e) => setImageFiles(Array.from(e.target.files || []))}
                   className="input-base"
                 />
                 <p className="text-xs text-gray-500 mt-1">
-                  Upload up to 10 images (JPG, PNG, WEBP)
+                  Upload up to 10 images (JPG, JPEG, PNG, WEBP)
                 </p>
               </div>
             </div>

@@ -14,7 +14,12 @@ export class ProductController {
         throw new AppError('Supplier profile not found', 404);
       }
 
-      const product = await ProductService.create(supplier.id, req.body);
+      const payload: any = { ...req.body };
+      if (payload.min_order_quantity !== undefined && payload.minimum_order_quantity === undefined) {
+        payload.minimum_order_quantity = payload.min_order_quantity;
+      }
+
+      const product = await ProductService.create(supplier.id, payload);
 
       res.status(201).json({
         success: true,
@@ -116,7 +121,12 @@ export class ProductController {
         throw new AppError('Supplier profile not found', 404);
       }
 
-      const product = await ProductService.update(id, supplier.id, req.body);
+      const payload: any = { ...req.body };
+      if (payload.min_order_quantity !== undefined && payload.minimum_order_quantity === undefined) {
+        payload.minimum_order_quantity = payload.min_order_quantity;
+      }
+
+      const product = await ProductService.update(id, supplier.id, payload);
 
       res.json({
         success: true,
@@ -165,11 +175,14 @@ export class ProductController {
         throw new AppError('Supplier profile not found', 404);
       }
 
-      await ProductService.delete(id, supplier.id);
+      const result = await ProductService.delete(id, supplier.id);
 
       res.json({
         success: true,
-        message: 'Product deleted successfully',
+        message:
+          result === 'deleted'
+            ? 'Product deleted successfully'
+            : 'Product is part of past orders and has been deactivated',
       });
     }
   );

@@ -6,6 +6,7 @@ import { toast } from 'react-hot-toast';
 import { LoadingSpinner } from '../../components/ui/LoadingSpinner';
 import { EmptyState } from '../../components/ui/EmptyState';
 import { ErrorAlert } from '../../components/ui/ErrorAlert';
+import { resolveImageUrl } from '../../utils/image';
 
 export const CartPage = () => {
   const navigate = useNavigate();
@@ -78,7 +79,7 @@ export const CartPage = () => {
                       className="w-[100px] h-[100px] rounded-lg flex items-center justify-center text-white text-3xl bg-cover bg-center"
                       style={
                         item.images && item.images[0]
-                          ? { backgroundImage: `url(http://localhost:5000${item.images[0]})` }
+                          ? { backgroundImage: `url(${resolveImageUrl(item.images[0])})` }
                           : { background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)' }
                       }
                     >

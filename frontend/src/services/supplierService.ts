@@ -42,12 +42,7 @@ export const supplierService = {
 
       const response = await api.post<ApiResponse<Supplier>>(
         '/suppliers/documents',
-        formData,
-        {
-          headers: {
-            'Content-Type': 'multipart/form-data',
-          },
-        }
+        formData
       );
       return response.data.data!;
     } catch (error) {

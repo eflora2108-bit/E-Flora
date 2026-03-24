@@ -35,8 +35,9 @@ const storage = multer.diskStorage({
 
 // File filter for documents
 const documentFileFilter = (req: any, file: Express.Multer.File, cb: multer.FileFilterCallback) => {
-  const allowedTypes = env.ALLOWED_DOC_TYPES.split(',');
-  const isAllowed = allowedTypes.includes(file.mimetype);
+  const allowedTypes = env.ALLOWED_DOC_TYPES.split(',').map((t) => t.trim().toLowerCase());
+  const mime = (file.mimetype || '').toLowerCase();
+  const isAllowed = allowedTypes.includes(mime);
 
   if (isAllowed) {
     cb(null, true);
@@ -50,8 +51,14 @@ const documentFileFilter = (req: any, file: Express.Multer.File, cb: multer.File
 
 // File filter for images
 const imageFileFilter = (req: any, file: Express.Multer.File, cb: multer.FileFilterCallback) => {
-  const allowedTypes = env.ALLOWED_IMAGE_TYPES.split(',');
-  const isAllowed = allowedTypes.includes(file.mimetype);
+  const allowedTypes = env.ALLOWED_IMAGE_TYPES.split(',').map((t) => t.trim().toLowerCase());
+  const mime = (file.mimetype || '').toLowerCase();
+  const ext = path.extname(file.originalname || '').toLowerCase();
+  const allowedExts = ['.jpg', '.jpeg', '.png', '.webp'];
+  const isAllowedByMime =
+    allowedTypes.includes(mime) ||
+    (allowedTypes.includes('image/*') && mime.startsWith('image/'));
+  const isAllowed = isAllowedByMime || allowedExts.includes(ext);
 
   if (isAllowed) {
     cb(null, true);

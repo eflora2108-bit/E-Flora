@@ -4,6 +4,19 @@ import { InventoryService } from './inventoryService';
 import { AppError } from '../middleware/errorHandler';
 
 export class CartService {
+  private static normalizeImages(images: any): string[] {
+    if (!Array.isArray(images)) return [];
+    return images
+      .map((img) => {
+        if (typeof img === 'string') return img;
+        if (img && typeof img === 'object') {
+          return img.url || img.secure_url || img.path || null;
+        }
+        return null;
+      })
+      .filter((url): url is string => Boolean(url));
+  }
+
   /**
    * Add item to cart with stock validation
    */
@@ -98,6 +111,7 @@ export class CartService {
 
       return {
         ...item,
+        images: this.normalizeImages(item.images),
         item_total: itemTotal,
         gst_amount: gstAmount,
         total_with_gst: itemTotal + gstAmount,

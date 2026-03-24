@@ -1,0 +1,58 @@
+Project Overview
+----------------
+E-Flora is a B2B-B2C online marketplace designed specifically for the plant community, bridging the gap between plant nurseries (suppliers) and customers. It operates as a verified platform ensuring authenticity, quality, and smooth transactions.
+
+Key Features & Capabilities
+---------------------------
+- Role-Based Access: Dedicated portals and workflows for Customers, Suppliers, and Admins.
+- Supplier Verification System: Mandatory document verification (GSTIN, PAN, license) by Admin before a supplier can sell.
+- Product Moderation Workflow: Admins must approve all plant and product listings before they go live on the platform.
+- Real-Time Inventory Management: Accurately tracks stock to ensure transaction safety and prevent overselling.
+- Comprehensive Order Lifecycle: Tracks everything from cart checkout and payment to order confirmation and delivery.
+- Automated Invoicing: Generates robust, GST-compliant invoices (calculating CGST/SGST/IGST) and automatically emails them.
+- Integrated Payments: Secure, seamless checkout experience.
+- Ratings & Reviews: Allows customers to leave feedback on plants and nurseries.
+
+Platform Workflows
+------------------
+1. Supplier Onboarding Workflow
+   - Register as a supplier on the platform.
+   - Complete the business profile and upload required verification documents (GSTIN, PAN, License).
+   - Admin reviews the documents and either approves or rejects the application.
+   - Once approved, the supplier gains access to their dedicated dashboard.
+   - Supplier lists their products (each product then requires admin approval before surfacing to customers).
+
+2. Customer Order Workflow
+   - Customer browses the approved products and adds them to their cart.
+   - Customer proceeds to checkout, selects their delivery address, and reviews the order.
+   - Customer completes the payment securely.
+   - Order confirmation is displayed, and an automated, GST-compliant invoice is generated and emailed.
+   - Customer can track the order status from packaging to dispatch.
+   - Final step: Delivery confirmation.
+
+3. Admin Workflows
+   - Vendor Management: Verify and approve/reject newly registered suppliers and their documents.
+   - Catalog Moderation: Review and approve/reject all product listings added by active suppliers.
+   - Order Oversight: Monitor and manage all customer orders globally.
+   - Analytics & Reporting: View business analytics, performance markers, and comprehensive reports.
+   - Access Control: Manage user accounts and platform permissions.
+
+Layout & Colors
+---------------
+The application utilizes a nature-inspired, premium design system tailored for a plant marketplace:
+- Primary Color Theme: Various shades of Green (from light mint #f0fdf4 to deep forest green #052e16). The core brand color is a crisp, vibrant green (#22c55e), perfectly reflecting the botanical theme.
+- Accent Color Theme: Shades of Indigo/Blue (core accent #667eea) are used to provide an elegant contrast for buttons, text highlights, and interactive elements.
+- Animations: The interface feels alive with integrated micro-interactions such as fade-ins, gentle pulsing, floating elements, and smooth shimmer effects to deliver a modern, premium user experience.
+
+Recommendations for Production Readiness
+----------------------------------------
+To elevate the product and make it fully comprehensive for an enterprise-level launch, consider adding the following:
+
+1. Advanced Search & Filtering: Ability to filter plants by care difficulty, lighting needs, pet-friendliness, and indoor/outdoor suitability.
+2. Logistics Integration: Direct API integration with shipping providers (like Delhivery or BlueDart) for automated AWB generation and live tracking links.
+3. Subscription Models: Allow customers to subscribe to routine deliveries of essentials like fertilizers, soil, or seasonal flowers.
+4. Loyalty & Reward Program: Offer reward points for purchases or writing reviews to increase customer retention.
+5. AI Plant Assistant: A simple chatbot or feature to help users pick the right plants based on their room size or diagnose basic plant diseases.
+6. Multi-language Support (Localization): Support for regional languages to bring in a wider B2B and B2C audience.
+7. Legal & Compliance Requirements: Visible Terms of Service, Return/Refund Policies, Privacy Policy, and Cookie Consent banners.
+8. Customer Support/Helpdesk: Live chat or a ticketing system (e.g., WhatsApp Business integration) for quick dispute resolution and buyer support.

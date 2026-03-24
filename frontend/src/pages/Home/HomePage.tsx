@@ -5,6 +5,7 @@ import { Truck, ShieldCheck, CreditCard, Leaf, Search, ArrowRight, Star, Chevron
 import { productService } from '../../services/productService';
 import { categoryService } from '../../services/categoryService';
 import { useAuth } from '../../contexts/AuthContext';
+import { resolveImageUrl } from '../../utils/image';
 
 export const HomePage = () => {
   const navigate = useNavigate();
@@ -290,7 +291,7 @@ export const HomePage = () => {
                     <div className="relative aspect-square bg-gray-100 overflow-hidden">
                       {product.images?.[0] ? (
                         <img
-                          src={product.images[0].startsWith('http') ? product.images[0] : `http://localhost:5000${product.images[0]}`}
+                          src={resolveImageUrl(product.images[0])}
                           alt={product.name}
                           className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700"
                         />

@@ -11,6 +11,7 @@ import { EmptyState } from '../../components/ui/EmptyState';
 import { ErrorAlert } from '../../components/ui/ErrorAlert';
 import { motion } from 'framer-motion';
 import { Search, SlidersHorizontal, X, ShoppingCart, ChevronLeft, ChevronRight, Leaf, Heart } from 'lucide-react';
+import { resolveImageUrl } from '../../utils/image';
 
 export const ProductCatalogPage = () => {
   const navigate = useNavigate();
@@ -326,7 +327,7 @@ export const ProductCatalogPage = () => {
                         <div className="relative aspect-[4/3] bg-gray-100 overflow-hidden">
                           {product.images && product.images[0] ? (
                             <img
-                              src={product.images[0].startsWith('http') ? product.images[0] : `http://localhost:5000${product.images[0]}`}
+                              src={resolveImageUrl(product.images[0])}
                               alt={product.name}
                               className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700"
                             />

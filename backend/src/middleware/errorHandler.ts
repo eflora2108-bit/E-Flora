@@ -1,4 +1,5 @@
 import { Request, Response, NextFunction } from 'express';
+import multer from 'multer';
 import logger from '../utils/logger';
 import env from '../config/env';
 
@@ -23,6 +24,30 @@ export const errorHandler = (
   res: Response,
   next: NextFunction
 ) => {
+  if (err instanceof multer.MulterError) {
+    if (err.code === 'LIMIT_FILE_SIZE') {
+      res.status(400).json({
+        success: false,
+        message: 'One or more files are too large',
+      });
+      return;
+    }
+
+    if (err.code === 'LIMIT_FILE_COUNT') {
+      res.status(400).json({
+        success: false,
+        message: 'Too many files uploaded. Maximum 10 images are allowed',
+      });
+      return;
+    }
+
+    res.status(400).json({
+      success: false,
+      message: err.message || 'File upload error',
+    });
+    return;
+  }
+
   // Log error
   logger.error('Error occurred:', {
     message: err.message,

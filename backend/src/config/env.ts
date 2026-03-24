@@ -35,6 +35,11 @@ interface EnvConfig {
   AWS_REGION?: string;
   AWS_S3_BUCKET?: string;
 
+  // Cloudinary (optional)
+  CLOUDINARY_CLOUD_NAME?: string;
+  CLOUDINARY_API_KEY?: string;
+  CLOUDINARY_API_SECRET?: string;
+
   // Email
   EMAIL_PROVIDER: string;
   SMTP_HOST: string;
@@ -138,6 +143,10 @@ function validateEnv(): EnvConfig {
     AWS_SECRET_ACCESS_KEY: process.env.AWS_SECRET_ACCESS_KEY,
     AWS_REGION: process.env.AWS_REGION,
     AWS_S3_BUCKET: process.env.AWS_S3_BUCKET,
+
+    CLOUDINARY_CLOUD_NAME: process.env.CLOUDINARY_CLOUD_NAME,
+    CLOUDINARY_API_KEY: process.env.CLOUDINARY_API_KEY,
+    CLOUDINARY_API_SECRET: process.env.CLOUDINARY_API_SECRET,
 
     EMAIL_PROVIDER: process.env.EMAIL_PROVIDER || 'smtp',
     SMTP_HOST: process.env.SMTP_HOST || '',

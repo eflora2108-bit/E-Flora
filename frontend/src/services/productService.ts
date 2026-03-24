@@ -70,21 +70,17 @@ export const productService = {
   },
 
   // Supplier: Upload product images
-  async uploadImages(productId: string, files: FileList): Promise<Product> {
+  async uploadImages(productId: string, files: FileList | File[]): Promise<Product> {
     try {
       const formData = new FormData();
-      Array.from(files).forEach((file) => {
+      const list = Array.isArray(files) ? files : Array.from(files);
+      list.forEach((file) => {
         formData.append('images', file);
       });
 
       const response = await api.post<ApiResponse<Product>>(
         `/products/${productId}/images`,
-        formData,
-        {
-          headers: {
-            'Content-Type': 'multipart/form-data',
-          },
-        }
+        formData
       );
       return response.data.data!;
     } catch (error) {

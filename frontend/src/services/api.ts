@@ -16,6 +16,12 @@ api.interceptors.request.use(
   (config) => {
     const accessToken = localStorage.getItem('accessToken');
 
+    // Important: let browser/axios set multipart boundary automatically
+    if (config.data instanceof FormData && config.headers) {
+      delete (config.headers as any)['Content-Type'];
+      delete (config.headers as any)['content-type'];
+    }
+
     if (accessToken) {
       config.headers.Authorization = `Bearer ${accessToken}`;
     }

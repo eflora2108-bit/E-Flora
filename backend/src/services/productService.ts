@@ -2,6 +2,8 @@ import { ProductModel } from '../models/Product';
 import { CategoryModel } from '../models/Category';
 import { SupplierModel } from '../models/Supplier';
 import { AppError } from '../middleware/errorHandler';
+import { isCloudinaryConfigured, uploadProductImageToCloudinary } from '../config/cloudinary';
+import * as fs from 'fs/promises';
 import {
   ProductCreateInput,
   ProductUpdateInput,
@@ -11,8 +13,56 @@ import {
 import logger from '../utils/logger';
 
 export class ProductService {
+  private static imageToUrl(image: any): string | null {
+    if (!image) return null;
+
+    if (typeof image === 'string') {
+      return image;
+    }
+
+    if (typeof image === 'object') {
+      if (typeof image.url === 'string') return image.url;
+      if (typeof image.secure_url === 'string') return image.secure_url;
+      if (typeof image.path === 'string') return image.path;
+    }
+
+    return null;
+  }
+
+  private static normalizeImages(images: any): string[] {
+    if (!Array.isArray(images)) return [];
+    return images
+      .map((img) => this.imageToUrl(img))
+      .filter((url): url is string => Boolean(url));
+  }
+
+  private static normalizeProduct<T extends any>(product: T): T {
+    if (!product || typeof product !== 'object') return product;
+    return {
+      ...product,
+      images: this.normalizeImages((product as any).images),
+    };
+  }
+
+  private static normalizeProducts<T extends any>(products: T[]): T[] {
+    return products.map((p) => this.normalizeProduct(p));
+  }
+
   // Create product (supplier only)
   static async create(supplierId: string, data: Omit<ProductCreateInput, 'supplier_id'>) {
+    if (!data?.category_id) {
+      throw new AppError('Category is required', 400);
+    }
+    if (!data?.name || String(data.name).trim().length === 0) {
+      throw new AppError('Product name is required', 400);
+    }
+    if (data.price === undefined || Number(data.price) < 0) {
+      throw new AppError('Valid price is required', 400);
+    }
+    if (data.stock_quantity === undefined || Number(data.stock_quantity) < 0) {
+      throw new AppError('Valid stock quantity is required', 400);
+    }
+
     // Verify supplier is approved
     const supplier = await SupplierModel.findById(supplierId);
     if (!supplier) {
@@ -29,13 +79,27 @@ export class ProductService {
       throw new AppError('Category not found', 404);
     }
 
-    const product = await ProductModel.create({
-      ...data,
-      supplier_id: supplierId,
-    });
+    let product;
+    try {
+      product = await ProductModel.create({
+        ...data,
+        supplier_id: supplierId,
+      });
+    } catch (error: any) {
+      if (error?.code === '23505') {
+        throw new AppError('A product with similar details already exists. Try a different name.', 400);
+      }
+      if (error?.code === '23503') {
+        throw new AppError('Invalid category or supplier reference', 400);
+      }
+      if (error?.code === '23502') {
+        throw new AppError('Missing required product fields', 400);
+      }
+      throw error;
+    }
 
     logger.info(`Product created: ${product.id} by supplier ${supplierId}`);
-    return product;
+    return this.normalizeProduct(product);
   }
 
   // Get supplier's own products
@@ -44,10 +108,15 @@ export class ProductService {
     page: number = 1,
     limit: number = 20
   ) {
-    return await ProductModel.findAll(
-      { supplier_id: supplierId },
+    const result = await ProductModel.findAll(
+      { supplier_id: supplierId, is_active: true },
       { page, limit }
     );
+
+    return {
+      ...result,
+      products: this.normalizeProducts(result.products),
+    };
   }
 
   // Get product by ID (for owner)
@@ -62,7 +131,7 @@ export class ProductService {
       throw new AppError('You do not have permission to access this product', 403);
     }
 
-    return product;
+    return this.normalizeProduct(product);
   }
 
   // Update product (supplier only, requires re-moderation)
@@ -88,9 +157,13 @@ export class ProductService {
       }
     }
 
+    if (data.images !== undefined) {
+      data.images = this.normalizeImages(data.images as any);
+    }
+
     const updated = await ProductModel.update(id, data);
     logger.info(`Product updated: ${id}, reset to pending moderation`);
-    return updated;
+    return this.normalizeProduct(updated);
   }
 
   // Upload product images
@@ -108,19 +181,42 @@ export class ProductService {
       throw new AppError('You do not have permission to update this product', 403);
     }
 
-    const newImages = files.map(file => ({
-      filename: file.filename,
-      path: `/uploads/products/${file.filename}`,
-      uploadedAt: new Date().toISOString(),
-    }));
+    let newImages: string[] = [];
+
+    if (isCloudinaryConfigured()) {
+      try {
+        newImages = await Promise.all(
+          files.map(async (file) => {
+            const uploadedUrl = await uploadProductImageToCloudinary(file.path, id);
+            return uploadedUrl;
+          })
+        );
+      } catch (error: any) {
+        throw new AppError(error?.message || 'Failed to upload images to cloud storage', 500);
+      } finally {
+        await Promise.all(
+          files.map(async (file) => {
+            if (file.path) {
+              try {
+                await fs.unlink(file.path);
+              } catch {
+                // ignore cleanup error
+              }
+            }
+          })
+        );
+      }
+    } else {
+      newImages = files.map((file) => `/uploads/products/${file.filename}`);
+    }
 
     // Append new images to existing ones
-    const existingImages = Array.isArray(product.images) ? product.images : [];
+    const existingImages = this.normalizeImages(product.images);
     const allImages = [...existingImages, ...newImages];
 
     const updated = await ProductModel.uploadImages(id, allImages);
     logger.info(`Product images uploaded: ${id}, new: ${files.length}, total: ${allImages.length}`);
-    return updated;
+    return this.normalizeProduct(updated);
   }
 
   // Get public products (approved and active)
@@ -134,7 +230,11 @@ export class ProductService {
     page: number = 1,
     limit: number = 20
   ) {
-    return await ProductModel.getPublicProducts(filters, { page, limit });
+    const result = await ProductModel.getPublicProducts(filters, { page, limit });
+    return {
+      ...result,
+      products: this.normalizeProducts(result.products),
+    };
   }
 
   // Get product by slug (public)
@@ -143,11 +243,11 @@ export class ProductService {
     if (!product) {
       throw new AppError('Product not found', 404);
     }
-    return product;
+    return this.normalizeProduct(product);
   }
 
   // Delete product (supplier only)
-  static async delete(id: string, supplierId: string) {
+  static async delete(id: string, supplierId: string): Promise<'deleted' | 'deactivated'> {
     const product = await ProductModel.findById(id);
     if (!product) {
       throw new AppError('Product not found', 404);
@@ -157,8 +257,19 @@ export class ProductService {
       throw new AppError('You do not have permission to delete this product', 403);
     }
 
-    await ProductModel.delete(id);
-    logger.info(`Product deleted: ${id}`);
+    try {
+      await ProductModel.delete(id);
+      logger.info(`Product deleted: ${id}`);
+      return 'deleted';
+    } catch (error: any) {
+      // If product is referenced in historical records, fallback to soft delete
+      if (error?.code === '23503') {
+        await ProductModel.deactivate(id);
+        logger.info(`Product deactivated due to references: ${id}`);
+        return 'deactivated';
+      }
+      throw error;
+    }
   }
 
   // Get pending products (admin)
@@ -182,7 +293,7 @@ export class ProductService {
 
     const approved = await ProductModel.approve(id, adminId);
     logger.info(`Product approved: ${id} by admin ${adminId}`);
-    return approved;
+    return this.normalizeProduct(approved);
   }
 
   // Reject product (admin)
@@ -198,23 +309,25 @@ export class ProductService {
 
     const rejected = await ProductModel.reject(id, reason, adminId);
     logger.info(`Product rejected: ${id} by admin ${adminId}`);
-    return rejected;
+    return this.normalizeProduct(rejected);
   }
 
-  // Get product stats (admin)
+  // Get product stats (admin) - single aggregated query for efficiency
   static async getProductStats() {
-    const [pending, approved, rejected, all] = await Promise.all([
-      ProductModel.findAll({ moderation_status: ProductModerationStatus.PENDING }),
-      ProductModel.findAll({ moderation_status: ProductModerationStatus.APPROVED }),
-      ProductModel.findAll({ moderation_status: ProductModerationStatus.REJECTED }),
-      ProductModel.findAll({}),
-    ]);
-
+    const { query: dbQuery } = await import('../config/database');
+    const sql = `SELECT
+      COUNT(*) FILTER (WHERE moderation_status = 'pending') AS pending,
+      COUNT(*) FILTER (WHERE moderation_status = 'approved') AS approved,
+      COUNT(*) FILTER (WHERE moderation_status = 'rejected') AS rejected,
+      COUNT(*) AS total
+    FROM products`;
+    const result = await dbQuery(sql);
+    const row = result.rows[0];
     return {
-      pending: pending.total,
-      approved: approved.total,
-      rejected: rejected.total,
-      total: all.total,
+      pending: parseInt(row.pending),
+      approved: parseInt(row.approved),
+      rejected: parseInt(row.rejected),
+      total: parseInt(row.total),
     };
   }
 }

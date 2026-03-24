@@ -7,6 +7,7 @@ import { toast } from 'react-hot-toast';
 import { useCart } from '../../contexts/CartContext';
 import { LoadingSpinner } from '../../components/ui/LoadingSpinner';
 import { EmptyState } from '../../components/ui/EmptyState';
+import { resolveImageUrl } from '../../utils/image';
 
 const WishlistPage: React.FC = () => {
   const [wishlist, setWishlist] = useState<WishlistItem[]>([]);
@@ -104,7 +105,7 @@ const WishlistPage: React.FC = () => {
     if (!images || images.length === 0) {
       return '/placeholder-product.jpg';
     }
-    return images[0];
+    return resolveImageUrl(images[0]);
   };
 
   if (loading) {

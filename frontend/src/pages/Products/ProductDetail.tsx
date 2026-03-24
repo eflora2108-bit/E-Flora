@@ -10,6 +10,7 @@ import { Heart } from 'lucide-react';
 import { wishlistService } from '../../services/wishlistService';
 import { toast } from 'react-hot-toast';
 import { LoadingSpinner } from '../../components/ui/LoadingSpinner';
+import { resolveImageUrl } from '../../utils/image';
 
 type PotType = 'round' | 'square';
 type PotSize = 'small' | 'medium' | 'large';
@@ -191,7 +192,7 @@ export const ProductDetailPage = () => {
                 className="h-96 rounded-xl mb-4 flex items-center justify-center text-white text-7xl bg-contain bg-center bg-no-repeat"
                 style={
                   hasImages
-                    ? { backgroundImage: `url(http://localhost:5000${images[selectedImage]})`, backgroundColor: '#f9fafb' }
+                    ? { backgroundImage: `url(${resolveImageUrl(images[selectedImage])})`, backgroundColor: '#f9fafb' }
                     : { background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)' }
                 }
               >
@@ -210,7 +211,7 @@ export const ProductDetailPage = () => {
                           ? 'border-[3px] border-primary-500 shadow-md'
                           : 'border border-gray-200 hover:border-primary-300'
                       }`}
-                      style={{ backgroundImage: `url(http://localhost:5000${image})` }}
+                      style={{ backgroundImage: `url(${resolveImageUrl(image)})` }}
                     />
                   ))}
                 </div>
